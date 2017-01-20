@@ -7,7 +7,7 @@ import (
 )
 
 type ApiExec interface{
-    Execute(map[api.Api]api.RespCheck)
+    Execute(map[api.Api]api.RespCheck, <- chan struct{})
 }
 
 func getSimpleClient()  http.Client{
