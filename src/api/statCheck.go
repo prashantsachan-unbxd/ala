@@ -3,6 +3,6 @@ import(
     "net/http"
     )
 
-type RespChecker interface{                                                                                        
+type RespCheck interface{                                                                                        
 GetStatus(resp http.Response, err error) ApiStatus                                                             
 }

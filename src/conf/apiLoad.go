@@ -1,7 +1,6 @@
 package conf
 import (
 //    "fmt" 
-   "api"
+//   "api"
 )
 
-type Config map[string]map[string] api.RespChecker
