@@ -7,8 +7,8 @@ import(
 type ApiStatus int
 const (
     STATUS_GREEN ApiStatus = iota
-    STATUS_YELLOW ApiStatus = iota
-    STATUS_RED ApiStatus = iota
+    STATUS_YELLOW 
+    STATUS_RED 
 )
 func (s ApiStatus ) String () string{
     switch s{

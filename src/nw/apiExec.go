@@ -4,6 +4,7 @@ import (
     "net/http"
     "fmt"
     "api"
+    "time"
 )
 
 type ApiExec interface{
@@ -11,7 +12,7 @@ type ApiExec interface{
 }
 
 func getSimpleClient()  http.Client{
-    DefaultClient := http.Client{}
+    DefaultClient := http.Client{Timeout: 500* time.Millisecond}
     return  DefaultClient
 }
 func GetStatus(a api.Api, respCheck api.RespCheck) api.ApiStatus{
