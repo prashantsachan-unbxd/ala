@@ -3,7 +3,7 @@ package main
 import(
     "fmt"
     "time"
-    "nw"    
+    "ex"    
     "api"
 )
 
@@ -14,9 +14,9 @@ func main(){
     apiMap[api.Api{"GET", "http://localhost:8000", nil}] = api.HttpCodeChecker{}
     apiMap[api.Api{"GET", "http://www.google.co.in", nil}] = api.HttpCodeChecker{}
     fmt.Println("apiMap: ", apiMap)
-    var exec nw.ApiExec
-    //exec = nw.SingleExec{}
-    exec  = nw.IntervalExec{5* time.Second}
+    var exec ex.ApiExec
+    //exec = ex.SingleExec{}
+    exec  = ex.IntervalExec{5* time.Second}
     done := make(chan struct{})
     out:= exec.Execute(apiMap, done)
     

@@ -1,4 +1,4 @@
-package nw
+package ex
 import(
     "api"
     "fmt"
