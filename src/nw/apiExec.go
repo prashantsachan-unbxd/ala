@@ -8,11 +8,11 @@ import (
 )
 
 type ApiExec interface{
-    Execute(map[api.Api]api.RespCheck, <- chan struct{})
+    Execute(map[api.Api]api.RespCheck, <- chan struct{}) <-chan Event
 }
 
 func getSimpleClient()  http.Client{
-    DefaultClient := http.Client{Timeout: 500* time.Millisecond}
+    DefaultClient := http.Client{Timeout: 900* time.Millisecond}
     return  DefaultClient
 }
 func GetStatus(a api.Api, respCheck api.RespCheck) api.ApiStatus{
