@@ -5,6 +5,7 @@ import(
     "time"
     "ex"    
     "api"
+    "result"
 )
 
 func main(){
@@ -24,8 +25,9 @@ func main(){
     time.Sleep(30* time.Second)
     fmt.Println("jaag utha shaitan")
     done <- struct{}{}
+    dispatcher := result.SimpleDispatcher{[]result.EventConsumer{result.EventLogger{}}}
     for e:= range out{
-        fmt.Println("event:", e)
+        dispatcher.Dispatch(e)
     }
     close(done)
 }
