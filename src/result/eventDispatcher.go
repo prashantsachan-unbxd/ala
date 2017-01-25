@@ -11,12 +11,11 @@ type EventDispatcher interface{
 
 type SimpleDispatcher struct{
     Consumers [] EventConsumer
-    Done *chan struct{}
+    done chan struct{}
 }
 
-func (d SimpleDispatcher) StartDispatch(c <-chan ex.Event){
-    c1 := make(chan struct{})
-    * (d.Done) = c1
+func (d *SimpleDispatcher) StartDispatch(c <-chan ex.Event){
+    d.done = make(chan struct{})
     go func(){
     for{
         select{
@@ -24,12 +23,12 @@ func (d SimpleDispatcher) StartDispatch(c <-chan ex.Event){
                 for _,c:= range d.Consumers{
                     c.Consume(e)
                 }
-            case <- *(d.Done):
+            case <- (d.done):
                 return
         }
     }
     }()
 }
-func (d SimpleDispatcher)StopDispatch(){
-    close(*(d.Done))
+func (d *SimpleDispatcher)StopDispatch(){
+    close((d.done))
 }

@@ -9,7 +9,7 @@ type IntervalExec struct{
     Interval time.Duration
 }
 
-func (e IntervalExec) Execute(apiData map[api.Api]api.ApiValidator, done <-chan struct{}) <-chan Event   {
+func (e *IntervalExec) Execute(apiData map[api.Api]api.ApiValidator, done <-chan struct{}) <-chan Event   {
     out:= make(chan Event)
     go func(){
         terminated := false
@@ -43,7 +43,7 @@ func fireAll(apiData map[api.Api]api.ApiValidator, out chan<- Event){
         go func(){
             timeStamp:= time.Now()
             status:=GetStatus(a1,check1)
-            fmt.Println(a1.Method, a1.Url, " : ", status) 
+          //  fmt.Println(a1.Method, a1.Url, " : ", status) 
             out<- Event{a1, timeStamp, status}
             wg.Done()
         }()
