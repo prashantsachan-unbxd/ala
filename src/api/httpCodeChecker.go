@@ -6,7 +6,7 @@ import(
 
 type HttpCodeChecker struct{}
 
-func (c *HttpCodeChecker) GetStatus (resp http.Response, err error) ApiStatus{
+func (c HttpCodeChecker) GetStatus (resp http.Response, err error) ApiStatus{
     if err !=nil{
         fmt.Println(err)
         return STATUS_RED
@@ -16,4 +16,7 @@ func (c *HttpCodeChecker) GetStatus (resp http.Response, err error) ApiStatus{
         return STATUS_RED
     }
     
+}
+func (c HttpCodeChecker) String() string{
+    return "HTTP-Code-Checker"
 }
