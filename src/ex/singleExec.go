@@ -7,7 +7,7 @@ import(
 type SingleExec struct{
 }
 
-func (exec SingleExec) Execute(apiData map[api.Api]api.RespCheck, c<- chan struct{}) <-chan Event  {
+func (exec SingleExec) Execute(apiData map[api.Api]api.ApiValidator, c<- chan struct{}) <-chan Event  {
     out:= make(chan Event)      
     for a,check := range apiData{
         timeStamp:= time.Now()

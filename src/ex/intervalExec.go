@@ -9,7 +9,7 @@ type IntervalExec struct{
     Interval time.Duration
 }
 
-func (e IntervalExec) Execute(apiData map[api.Api]api.RespCheck, done <-chan struct{}) <-chan Event   {
+func (e IntervalExec) Execute(apiData map[api.Api]api.ApiValidator, done <-chan struct{}) <-chan Event   {
     out:= make(chan Event)
     go func(){
         terminated := false
@@ -34,7 +34,7 @@ func (e IntervalExec) Execute(apiData map[api.Api]api.RespCheck, done <-chan str
     }()
     return out
 }
-func fireAll(apiData map[api.Api]api.RespCheck, out chan<- Event){
+func fireAll(apiData map[api.Api]api.ApiValidator, out chan<- Event){
     wg :=sync.WaitGroup{}
     for a,check := range apiData{
         a1 :=a

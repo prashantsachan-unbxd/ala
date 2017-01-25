@@ -8,14 +8,14 @@ import (
 )
 
 type ApiExec interface{
-    Execute(map[api.Api]api.RespCheck, <- chan struct{}) <-chan Event
+    Execute(map[api.Api]api.ApiValidator, <- chan struct{}) <-chan Event
 }
 
 func getSimpleClient()  http.Client{
     DefaultClient := http.Client{Timeout: 900* time.Millisecond}
     return  DefaultClient
 }
-func GetStatus(a api.Api, respCheck api.RespCheck) api.ApiStatus{
+func GetStatus(a api.Api, respCheck api.ApiValidator) api.ApiStatus{
     client := getSimpleClient()
     req,err:= http.NewRequest(a.Method, a.Url, a.Data)
     if err !=nil{
