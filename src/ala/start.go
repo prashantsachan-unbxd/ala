@@ -12,8 +12,8 @@ func main(){
     
     apiMap:= make( map[api.Api]api.ApiValidator)
     
-    apiMap[api.Api{"GET", "http://localhost:8000", nil}] = &api.HttpCodeChecker{}
-    apiMap[api.Api{"GET", "http://www.google.co.in", nil}] = &api.HttpCodeChecker{}
+    apiMap[api.Api{"GET", "http://localhost:8000", ""}] = &api.HttpCodeChecker{}
+    apiMap[api.Api{"GET", "http://www.google.co.in", ""}] = &api.HttpCodeChecker{}
     fmt.Println("apiMap: ", apiMap)
     var exec ex.ApiExec
     //exec = ex.SingleExec{}

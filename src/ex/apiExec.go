@@ -5,6 +5,7 @@ import (
     "fmt"
     "api"
     "time"
+    "strings"
 )
 
 type ApiExec interface{
@@ -17,7 +18,7 @@ func getSimpleClient()  http.Client{
 }
 func GetStatus(a api.Api, respCheck api.ApiValidator) api.ApiStatus{
     client := getSimpleClient()
-    req,err:= http.NewRequest(a.Method, a.Url, a.Data)
+    req,err:= http.NewRequest(a.Method, a.Url, strings.NewReader(a.Data))
     if err !=nil{
         fmt.Println("unable to create httpReq for:", a.Method, a.Url, a.Data)
         return api.STATUS_YELLOW
