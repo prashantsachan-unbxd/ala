@@ -22,14 +22,17 @@ func main(){
     out:= exec.Execute(apiMap, done)
     
     fmt.Println("sleeping for 30 sec")
+    
+    dispatcher := result.SimpleDispatcher{[]result.EventConsumer{result.EventLogger{}}, new (chan struct{})}
+    dispatcher.StartDispatch(out)
     time.Sleep(30* time.Second)
     fmt.Println("jaag utha shaitan")
     done <- struct{}{}
-    dispatcher := result.SimpleDispatcher{[]result.EventConsumer{result.EventLogger{}}}
-    for e:= range out{
-        dispatcher.Dispatch(e)
-    }
+    //for e:= range out{
+    //    dispatcher.Dispatch(e)
+    //}
     close(done)
+    dispatcher.StopDispatch()
 }
 
 
