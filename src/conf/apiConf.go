@@ -18,7 +18,7 @@ type ApiConf struct{
 
 func fromBasic(src basicConf)ApiConf{
    valid:= GetValidator(src.ValidatorType)
-    fmt.Println("got validator: ", valid)
+   // fmt.Println("got validator: ", valid)
    return ApiConf{src.Api, valid}    
 }
 func toBasic(src ApiConf)basicConf{
@@ -40,7 +40,7 @@ func readBasicConf(path string)[] basicConf{
 }
 func ReadApiConf(path string) []ApiConf{
     basics := readBasicConf(path)
-    fmt.Println("basics:", basics)
+    //fmt.Println("basics:", basics)
     var configs []ApiConf
     for _,b:= range basics{
         c := fromBasic(b)

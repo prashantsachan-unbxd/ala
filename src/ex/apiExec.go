@@ -4,12 +4,13 @@ import (
     "net/http"
     "fmt"
     "api"
+    "conf"
     "time"
     "strings"
 )
 
 type ApiExec interface{
-    Execute(map[api.Api]api.ApiValidator, <- chan struct{}) <-chan Event
+    Execute([]conf.ApiConf, <- chan struct{}) <-chan Event
 }
 
 func getSimpleClient()  http.Client{

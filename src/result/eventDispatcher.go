@@ -20,8 +20,8 @@ func (d *SimpleDispatcher) StartDispatch(c <-chan ex.Event){
     for{
         select{
             case e:= <- c:
-                for _,c:= range d.Consumers{
-                    c.Consume(e)
+                for _,con:= range d.Consumers{
+                    con.Consume(e)
                 }
             case <- (d.done):
                 return

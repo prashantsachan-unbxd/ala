@@ -2,14 +2,15 @@ package ex
 import(
     "time"
     "sync"
-    "api"
+//    "api"
     "fmt"
+    "conf"
     )
 type IntervalExec struct{
     Interval time.Duration
 }
 
-func (e *IntervalExec) Execute(apiData map[api.Api]api.ApiValidator, done <-chan struct{}) <-chan Event   {
+func (e *IntervalExec) Execute(apiData []conf.ApiConf, done <-chan struct{}) <-chan Event   {
     out:= make(chan Event)
     go func(){
         terminated := false
@@ -34,17 +35,16 @@ func (e *IntervalExec) Execute(apiData map[api.Api]api.ApiValidator, done <-chan
     }()
     return out
 }
-func fireAll(apiData map[api.Api]api.ApiValidator, out chan<- Event){
+func fireAll(apiData []conf.ApiConf, out chan<- Event){
     wg :=sync.WaitGroup{}
-    for a,check := range apiData{
-        a1 :=a
-        check1 :=check
+    for _,c := range apiData{
+        conf :=c
         wg.Add(1)
         go func(){
             timeStamp:= time.Now()
-            status:=GetStatus(a1,check1)
-          //  fmt.Println(a1.Method, a1.Url, " : ", status) 
-            out<- Event{a1, timeStamp, status}
+            status:=GetStatus(conf.Api,conf.Validator)
+          //  fmt.Println(conf.Api.Method, conf.Api.Url, " : ", status) 
+            out<- Event{conf.Api, timeStamp, status}
             wg.Done()
         }()
     }   
