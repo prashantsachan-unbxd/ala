@@ -17,18 +17,18 @@ type SimpleDispatcher struct{
 func (d *SimpleDispatcher) StartDispatch(c <-chan ex.Event){
     d.done = make(chan struct{})
     go func(){
-    for{
+        for{
         select{
             case e:= <- c:
                 for _,con:= range d.Consumers{
                     con.Consume(e)
                 }
-            case <- (d.done):
+            case <- d.done:
                 return
         }
     }
     }()
 }
 func (d *SimpleDispatcher)StopDispatch(){
-    close((d.done))
+    close(d.done)
 }

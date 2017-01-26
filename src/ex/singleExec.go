@@ -1,20 +1,13 @@
 package ex
 import(
-    "api"
-    "fmt"
-    "time"
+    "conf"
     )
 type SingleExec struct{
 }
 
-func (exec *SingleExec) Execute(apiData map[api.Api]api.ApiValidator, c<- chan struct{}) <-chan Event  {
+func (exec *SingleExec) Execute(apiData []conf.ApiConf, c<- chan struct{}) <-chan Event  {
     out:= make(chan Event)      
-    for a,check := range apiData{
-        timeStamp:= time.Now()
-        status := GetStatus(a, check)
-        fmt.Println(a.Method, a.Url, " : ", status )
-        out<- Event{a, timeStamp, status}
-    }
-    close(out)
+    go fireAll(apiData, out)
     return out
 }
+
