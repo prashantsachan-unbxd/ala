@@ -13,8 +13,8 @@ func main(){
     fmt.Println("apiConfigs: \n", apiConfigs)
    
     var exec ex.ApiExec
-    exec = & ex.SingleExec{apiConfigs}
-//    exec  = & ex.IntervalExec{5* time.Second}
+//    exec = & ex.SingleExec{apiConfigs}
+    exec  = & ex.IntervalExec{Interval:5* time.Second, ApiData:apiConfigs}
  
     out:= exec.StartExec()
     

@@ -2,16 +2,18 @@ package ex
 import(
     "time"
     "sync"
-//    "api"
     "fmt"
     "conf"
     )
 type IntervalExec struct{
     Interval time.Duration
+    ApiData []conf.ApiConf
+    done chan struct{}
 }
 
-func (e *IntervalExec) Execute(apiData []conf.ApiConf, done <-chan struct{}) <-chan Event   {
+func (e *IntervalExec) StartExec()<-chan Event   {
     out:= make(chan Event)
+    e.done = make(chan struct{})
     go func(){
         terminated := false
         ticker := time.NewTicker(e.Interval )
@@ -23,9 +25,9 @@ func (e *IntervalExec) Execute(apiData []conf.ApiConf, done <-chan struct{}) <-c
                     ticker.Stop()
                 }else{
                     fmt.Println("launching batch at: ", t)
-                    go fireAll(apiData, out)
+                    go fireAll(e.ApiData, out)
                 }
-            case <-done :
+            case <-e.done :
                 // wait till next cycle to close the channel
                 // allow current batch to finish
                 terminated = true
@@ -34,6 +36,9 @@ func (e *IntervalExec) Execute(apiData []conf.ApiConf, done <-chan struct{}) <-c
         }
     }()
     return out
+}
+func (e *IntervalExec)StopExec(){
+    close(e.done)
 }
 func fireAll(apiData []conf.ApiConf, out chan<- Event){
     wg :=sync.WaitGroup{}
