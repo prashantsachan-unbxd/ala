@@ -1,7 +1,6 @@
 package ex
 import(
     "time"
-    "sync"
     "fmt"
     "conf"
     )
@@ -40,18 +39,4 @@ func (e *IntervalExec) StartExec()<-chan Event   {
 func (e *IntervalExec)StopExec(){
     close(e.done)
 }
-func fireAll(apiData []conf.ApiConf, out chan<- Event){
-    wg :=sync.WaitGroup{}
-    for _,c := range apiData{
-        conf :=c
-        wg.Add(1)
-        go func(){
-            timeStamp:= time.Now()
-            status:=GetStatus(conf.Api,conf.Validator)
-          //  fmt.Println(conf.Api.Method, conf.Api.Url, " : ", status) 
-            out<- Event{conf.Api, timeStamp, status}
-            wg.Done()
-        }()
-    }   
-    wg.Wait()
-}
+
