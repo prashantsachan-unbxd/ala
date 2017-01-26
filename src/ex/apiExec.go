@@ -4,13 +4,13 @@ import (
     "net/http"
     "fmt"
     "api"
-    "conf"
     "time"
     "strings"
 )
 
 type ApiExec interface{
-    Execute([]conf.ApiConf, <- chan struct{}) <-chan Event
+    StartExec() <-chan Event
+    StopExec()
 }
 
 func getSimpleClient()  http.Client{

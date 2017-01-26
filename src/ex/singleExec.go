@@ -3,11 +3,16 @@ import(
     "conf"
     )
 type SingleExec struct{
+    ApiData [] conf.ApiConf
 }
 
-func (exec *SingleExec) Execute(apiData []conf.ApiConf, c<- chan struct{}) <-chan Event  {
+func (e *SingleExec) StartExec() <-chan Event  {
     out:= make(chan Event)      
-    go fireAll(apiData, out)
+    go fireAll(e.ApiData, out)
     return out
+}
+
+func (e *SingleExec) StopExec(){
+    //nothing to do
 }
 

@@ -13,10 +13,10 @@ func main(){
     fmt.Println("apiConfigs: \n", apiConfigs)
    
     var exec ex.ApiExec
-    exec = & ex.SingleExec{}
+    exec = & ex.SingleExec{apiConfigs}
 //    exec  = & ex.IntervalExec{5* time.Second}
-    done := make(chan struct{})
-    out:= exec.Execute(apiConfigs, done)
+ 
+    out:= exec.StartExec()
     
     fmt.Println("sleeping for 30 sec")
     
@@ -24,7 +24,7 @@ func main(){
     dispatcher.StartDispatch(out)
     time.Sleep(30* time.Second)
     fmt.Println("jaag utha shaitan")
-    close(done)
+    exec.StopExec()
     dispatcher.StopDispatch()
 }
 
