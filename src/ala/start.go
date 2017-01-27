@@ -6,6 +6,7 @@ import(
     "ex"    
     "result"
     "conf"
+    "api"
 )
 
 func main(){
@@ -19,13 +20,15 @@ func main(){
     out:= exec.StartExec()
     
     fmt.Println("sleeping for 30 sec")
-    
-    dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}}}
+    sm:= result.TimedStateManager{6* time.Second,make(map[api.Api]time.Time)} 
+    dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}, & result.StateCollector{&sm}}}
     dispatcher.StartDispatch(out)
     time.Sleep(30* time.Second)
     fmt.Println("jaag utha shaitan")
     exec.StopExec()
     dispatcher.StopDispatch()
+    fmt.Println("printing the stats of all APIs")
+    fmt.Println(sm.GetState())
 }
 
 

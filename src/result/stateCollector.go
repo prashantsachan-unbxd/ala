@@ -5,9 +5,9 @@ import(
 
     )
 type StateCollector struct{
-    sm StateManager 
+    Sm StateManager 
 }
 
 func (sc *StateCollector)Consume(e ex.Event){
-    sc.sm.UpdateState(e)
+    sc.Sm.UpdateState(e)
 }
