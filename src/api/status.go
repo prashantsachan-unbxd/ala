@@ -1,6 +1,7 @@
 package api
 
 import(
+    "encoding/json"
     )
 
 
@@ -17,4 +18,11 @@ func (s ApiStatus ) String () string{
         case STATUS_RED : return "RED"
         default: return "UNKNOWN"
     }
+}
+func (s ApiStatus) MarshalText() ([]byte, error) {
+         return []byte(s.String()), nil
+}
+
+func (s ApiStatus) MarshalJSON() ([]byte, error) {
+         return json.Marshal(s.String())
 }

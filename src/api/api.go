@@ -4,7 +4,7 @@ import(
     
     )
 type Api struct{
-    Method string
-    Url string
-    Data string
+    Method string `json:"method"`
+    Url string `json:"url"`
+    Data string `json:"data"`
 }
