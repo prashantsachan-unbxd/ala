@@ -17,7 +17,7 @@ func GetStatus(a api.Api, respCheck api.ApiValidator) api.ApiStatus{
     req,err:= http.NewRequest(a.Method, a.Url, strings.NewReader(a.Data))
     if err !=nil{
         fmt.Println("unable to create httpReq for:", a.Method, a.Url, a.Data)
-        return api.STATUS_YELLOW
+        return api.STATUS_RED
     }
     res, err := client.Do(req)
     if err !=nil {
