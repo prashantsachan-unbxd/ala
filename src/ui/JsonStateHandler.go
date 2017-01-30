@@ -3,7 +3,6 @@ import(
     "encoding/json"
     "result"
     "net/http"
-    "api"
     )
 
 type JsonStateHandler struct{
@@ -23,10 +22,4 @@ func (h * JsonStateHandler) HandleFunc() func(w http.ResponseWriter, r *http.Req
         w.Write(js)
     }
 }
-func statusToApiList(in map[api.Api]api.ApiStatus) map[string][]api.Api{
-    out:= make(map[string][]api.Api )
-    for a,s := range in{
-        out[s.String()]= append(out[s.String()], a)
-    }
-    return out
-}
+

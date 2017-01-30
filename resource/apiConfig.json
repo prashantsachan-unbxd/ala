@@ -9,6 +9,14 @@
     {
         "api":{
             "method": "GET",
+            "url": "http://localhost:4000"
+        },
+        "validator_type": "httpCode"
+    },
+
+    {
+        "api":{
+            "method": "GET",
             "url": "http://google.co.in"
         },
         "validator_type": "httpCode"

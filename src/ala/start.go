@@ -25,6 +25,7 @@ func main(){
     dispatcher.StartDispatch(out)
     handlerMap:=map[string]ui.ReqHandler{
         "/state": &ui.JsonStateHandler{&sm},
+        "/state.html": &ui.HtmlStateHandler{&sm},
     }
     for path,h:= range handlerMap{
         fmt.Println("setting handler for", path)

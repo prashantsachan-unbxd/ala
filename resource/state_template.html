@@ -15,7 +15,8 @@
                 $.ajax({
                 type: "GET",
                 dataType: "json",
-                url: "http://localhost:8080/state",
+                //url: "http://localhost:8080/state",
+                url: {{.Url}},
                 success: function(result){
                     var parentDiv = "<div>";
                     
@@ -52,7 +53,7 @@
                    }
                 }
             });
-            },3000);
+            },{{.RefreshTimeMs}});
             function createElement(apiList, color){
                 if(apiList === undefined || apiList.length ==0){
                     return ;
