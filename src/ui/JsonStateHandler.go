@@ -3,7 +3,7 @@ import(
     "encoding/json"
     "result"
     "net/http"
-    "fmt"
+    "api"
     )
 
 type JsonStateHandler struct{
@@ -12,21 +12,21 @@ type JsonStateHandler struct{
 func (h * JsonStateHandler) HandleFunc() func(w http.ResponseWriter, r *http.Request){
     return func(w http.ResponseWriter, r * http.Request){
         state:= h.Sm.GetState()
-        stateStr:=make(map[string]interface{})
-        for k,v:= range state{
-            kStr,err:= json.Marshal(k)
-            if err ==nil{
-                stateStr[string(kStr)] = v
-            }else{
-                fmt.Println("can't convert",k," to json for StateHandler")
-            }
-        }
-        js, err := json.Marshal(stateStr)
+        stateJson :=statusToApiList(state)
+        js, err := json.Marshal(stateJson)
         if err != nil {
             http.Error(w, err.Error(), http.StatusInternalServerError)
             return
         }
         w.Header().Set("Content-Type", "application/json")
+        w.Header().Set("Access-Control-Allow-Origin", "*")
         w.Write(js)
     }
+}
+func statusToApiList(in map[api.Api]api.ApiStatus) map[string][]api.Api{
+    out:= make(map[string][]api.Api )
+    for a,s := range in{
+        out[s.String()]= append(out[s.String()], a)
+    }
+    return out
 }
