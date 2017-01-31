@@ -12,9 +12,9 @@ import(
 )
 
 func main(){
-    var confLoader conf.ConfLoader
-    confLoader = &conf.FileConfDao{"./resource/apiConfig.json"}
-    apiConfigs,err :=confLoader.Read()
+    var confStore conf.ConfStore
+    confStore = &conf.FileConfStore{"./resource/apiConfig.json"}
+    apiConfigs,err :=confStore.ReadApiConf()
     if err!=nil{
         fmt.Println(err)
         fmt.Println("exiting")

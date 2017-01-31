@@ -13,8 +13,12 @@ type ApiConf struct{
     Validator api.ApiValidator
 }
 type ConfLoader interface{
-    Read() ([]ApiConf,error)
+    ReadApiConf() ([]ApiConf,error)
 }
-//    func Write([] ApiConf) error
-//func writeBasicConf(configs []basicConf, filePath string)
-//func WriteApiConf(configs []ApiConf, filePath string)
+type ConfWriter interface{
+    WriteApiConf([] ApiConf) error
+}
+type ConfStore interface{
+    ConfLoader
+    ConfWriter
+}

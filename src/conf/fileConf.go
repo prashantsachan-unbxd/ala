@@ -4,10 +4,10 @@ import(
     "encoding/json"
     "io/ioutil" 
     )
-type FileConfDao struct{
+type FileConfStore struct{
     FilePath string
 }
-func readBasicConf(path string)([] basicConf,error){
+func readFromFile(path string)([] basicConf,error){
     file, err := ioutil.ReadFile(path)
     if err != nil {
         return nil,err
@@ -20,8 +20,8 @@ func readBasicConf(path string)([] basicConf,error){
     }
     return config,nil
 }
-func (d *FileConfDao)Read() ([]ApiConf,error){
-    basics,err := readBasicConf(d.FilePath)
+func (d *FileConfStore)ReadApiConf() ([]ApiConf,error){
+    basics,err := readFromFile(d.FilePath)
     if err !=nil{
         return nil, err
     }
@@ -32,5 +32,18 @@ func (d *FileConfDao)Read() ([]ApiConf,error){
     }
     return configs, nil
 }
-//func writeBasicConf(configs []basicConf, filePath string)
-//func WriteApiConf(configs []ApiConf, filePath string)
+func writeToFile(basics []basicConf, filePath string) error{
+    b, err := json.Marshal(basics)
+    if err != nil { return err}
+
+    ioutil.WriteFile(filePath, b, 0644)
+    return nil
+}
+func (d *FileConfStore) WriteApiConf(configs []ApiConf) error{
+    var basics []basicConf
+    for _,c:= range configs{
+        b := toBasic(c)
+        basics = append(basics, b)
+    }
+    return writeToFile(basics, d.FilePath)
+}
