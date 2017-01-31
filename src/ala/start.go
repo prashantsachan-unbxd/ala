@@ -12,7 +12,14 @@ import(
 )
 
 func main(){
-    apiConfigs:= conf.ReadApiConf("./resource/apiConfig.json")
+    var confLoader conf.ConfLoader
+    confLoader = &conf.FileConfDao{"./resource/apiConfig.json"}
+    apiConfigs,err :=confLoader.Read()
+    if err!=nil{
+        fmt.Println(err)
+        fmt.Println("exiting")
+        return
+    }   
     fmt.Println("apiConfigs: \n", apiConfigs)
     var exec ex.ApiExec
 //    exec = & ex.SingleExec{apiConfigs}

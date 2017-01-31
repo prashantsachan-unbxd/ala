@@ -3,30 +3,34 @@ package conf
 import(
     "encoding/json"
     "io/ioutil" 
-    "fmt"
     )
-func readBasicConf(path string)[] basicConf{
+type FileConfDao struct{
+    FilePath string
+}
+func readBasicConf(path string)([] basicConf,error){
     file, err := ioutil.ReadFile(path)
     if err != nil {
-        fmt.Println("Config File Missing. ", err)
+        return nil,err
     }
 
     var config [] basicConf
     err = json.Unmarshal(file, &config)
     if err != nil {
-        fmt.Println("Config Parse Error: ", err)
+        return nil, err
     }
-    return config  
+    return config,nil
 }
-func ReadApiConf(path string) []ApiConf{
-    basics := readBasicConf(path)
-    //fmt.Println("basics:", basics)
+func (d *FileConfDao)Read() ([]ApiConf,error){
+    basics,err := readBasicConf(d.FilePath)
+    if err !=nil{
+        return nil, err
+    }
     var configs []ApiConf
     for _,b:= range basics{
         c := fromBasic(b)
         configs = append(configs, c)
     }
-    return configs
+    return configs, nil
 }
 //func writeBasicConf(configs []basicConf, filePath string)
 //func WriteApiConf(configs []ApiConf, filePath string)
