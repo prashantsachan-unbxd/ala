@@ -8,6 +8,7 @@ import(
     "conf"
     "api"
     "ui"
+    mux "github.com/gorilla/mux"
     "net/http"
 )
 
@@ -30,17 +31,22 @@ func main(){
     sm:= result.TimedStateManager{6* time.Second,make(map[api.Api]time.Time)} 
     dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}, & result.StateCollector{&sm}}}
     dispatcher.StartDispatch(out)
-    handlerMap:=map[string]ui.ReqHandler{
-        "/state": &ui.JsonStateHandler{&sm},
-        "/state.html": &ui.HtmlStateHandler{&sm},
+    handlers:=[]ui.ReqHandler{
+        &ui.JsonStateHandler{&sm},
+        &ui.HtmlStateHandler{&sm},
     }
-    for path,h:= range handlerMap{
-        fmt.Println("setting handler for", path)
-        http.HandleFunc(path,h.HandleFunc())
+    r:= mux.NewRouter()
+    for _,h:= range handlers{
+        h.Register(r)
     }
     fmt.Println("listening on port 8080")
-    http.ListenAndServe(":8080", nil)
-    
+    srv := &http.Server{
+        Handler:      r,
+        Addr:         ":8080",
+        WriteTimeout: 15 * time.Second,
+        ReadTimeout:  15 * time.Second,
+    }
+    fmt.Println(srv.ListenAndServe()) 
     exec.StopExec()
     dispatcher.StopDispatch()
 }

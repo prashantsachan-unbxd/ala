@@ -4,15 +4,16 @@ import(
     "result"
     "html/template"
     "fmt"
+    mux "github.com/gorilla/mux"
     )
 
 type HtmlStateHandler struct{
     Sm result.StateManager
 }
-
-func(h *HtmlStateHandler) HandleFunc()func(w http.ResponseWriter, r *http.Request){
-    return func(w http.ResponseWriter, r *http.Request){
-
+func (h * HtmlStateHandler)Register(r *mux.Router){
+    r.HandleFunc("/state/html",h.handleStateHtml)
+}
+func(h *HtmlStateHandler) handleStateHtml(w http.ResponseWriter, r *http.Request){
         t,err := template.ParseFiles("./resource/state_template.html")
         cnf:=struct{
             Url string
@@ -31,5 +32,4 @@ func(h *HtmlStateHandler) HandleFunc()func(w http.ResponseWriter, r *http.Reques
             http.Error(w, err.Error(), http.StatusInternalServerError)
             fmt.Println("error in rendering template for apiState")
         }
-    }
 }

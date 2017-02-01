@@ -1,7 +1,7 @@
 package ui
 import (
-    "net/http"
+    mux "github.com/gorilla/mux"
     )
 type ReqHandler interface {
-    HandleFunc() func(w http.ResponseWriter, r *http.Request)
+    Register(r *mux.Router)
 }
