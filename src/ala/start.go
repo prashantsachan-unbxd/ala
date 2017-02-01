@@ -31,9 +31,10 @@ func main(){
     sm:= result.TimedStateManager{6* time.Second,make(map[api.Api]time.Time)} 
     dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}, & result.StateCollector{&sm}}}
     dispatcher.StartDispatch(out)
-    handlers:=[]ui.ReqHandler{
-        &ui.JsonStateHandler{&sm},
-        &ui.HtmlStateHandler{&sm},
+    handlers:=[]ui.ReqController{
+//        &ui.JsonStateHandler{&sm},
+//        &ui.HtmlStateHandler{&sm},
+        &ui.StateController{&sm},
     }
     r:= mux.NewRouter()
     for _,h:= range handlers{
