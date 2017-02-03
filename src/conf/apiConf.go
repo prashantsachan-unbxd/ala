@@ -10,8 +10,8 @@ type basicConf struct{
     Tags []string `json:"tags"`
 }
 type ApiConf struct{
-    Api api.Api 
-    Validator api.ApiValidator
+    Api api.Api `json:"api"`
+    Validator api.ApiValidator `json:"validator"`
     Tags []string `json:"tags"`
 }
 type ConfLoader interface{

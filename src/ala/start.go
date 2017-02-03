@@ -31,13 +31,12 @@ func main(){
     sm:= result.TimedStateManager{6* time.Second,make(map[api.Api]time.Time)} 
     dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}, & result.StateCollector{&sm}}}
     dispatcher.StartDispatch(out)
-    handlers:=[]ui.ReqController{
-//        &ui.JsonStateHandler{&sm},
-//        &ui.HtmlStateHandler{&sm},
+    controllers:=[]ui.ReqController{
         &ui.StateController{&sm},
+        &ui.ConfController{&apiConfigs, confStore},
     }
     r:= mux.NewRouter()
-    for _,h:= range handlers{
+    for _,h:= range controllers{
         h.Register(r)
     }
     fmt.Println("listening on port 8080")
