@@ -1,26 +1,18 @@
 package api
 
 import(
-    "reflect"
+    "fmt"
     )
 
-var typeMap = map[string]reflect.Type{
-    "httpCode": reflect.TypeOf(HttpCodeChecker{}),
+var typeMap = map[string]ApiValidator{
+    "httpCode": HttpCodeChecker{},
+}
+func Init(){
+    fmt.Println("calling init of validatorFactory")
+}
+func GetValidator(valType string, jsonData map[string]interface{}) ApiValidator{
+    dummy := typeMap[valType]
+    return dummy.NewInstance(jsonData)
 }
 
-func GetValidator(typeStr string) ApiValidator{
-    t:= typeMap[typeStr]
-    v:= reflect.New(t).Elem()
-    i:= v.Interface()
-    validator:= i.(ApiValidator)
-    return validator
-}
-func GetValidatorType(v ApiValidator) string{
-    t := reflect.TypeOf(v)
-    for k,v:= range typeMap{
-        if v == t{
-            return k
-        }
-    }
-    return ""
-}
+

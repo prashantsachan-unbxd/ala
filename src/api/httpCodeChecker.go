@@ -17,6 +17,12 @@ func (c HttpCodeChecker) GetStatus (resp http.Response, err error) ApiStatus{
     }
     
 }
+func (c HttpCodeChecker) NewInstance(jsonData map[string]interface{})ApiValidator{
+    return HttpCodeChecker{}
+}
+func (c HttpCodeChecker) Type() string{
+    return "httpCode"
+}
 func (c HttpCodeChecker) String() string{
     return "HTTP-Code-Checker"
 }
