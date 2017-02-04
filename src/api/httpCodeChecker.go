@@ -21,8 +21,8 @@ func (c HttpCodeChecker) NewInstance(jsonData map[string]interface{})ApiValidato
     return HttpCodeChecker{}
 }
 func (c HttpCodeChecker) Type() string{
-    return "httpCode"
+    return VALIDATOR_TYPE_HTTPCODE
 }
 func (c HttpCodeChecker) String() string{
-    return "HTTP-Code-Checker"
+    return c.Type()
 }

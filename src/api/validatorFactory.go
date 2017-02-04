@@ -1,14 +1,10 @@
 package api
 
 import(
-    "fmt"
     )
-
+const VALIDATOR_TYPE_HTTPCODE ="httpCode"
 var typeMap = map[string]ApiValidator{
-    "httpCode": HttpCodeChecker{},
-}
-func Init(){
-    fmt.Println("calling init of validatorFactory")
+    VALIDATOR_TYPE_HTTPCODE: HttpCodeChecker{},
 }
 func GetValidator(valType string, jsonData map[string]interface{}) ApiValidator{
     dummy := typeMap[valType]
