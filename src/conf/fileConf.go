@@ -3,6 +3,7 @@ package conf
 import(
     "encoding/json"
     "io/ioutil" 
+    "fmt"
     )
 type FileConfStore struct{
     FilePath string
@@ -27,8 +28,12 @@ func (d *FileConfStore)ReadApiConf() ([]ApiConf,error){
     }
     var configs []ApiConf
     for _,b:= range basics{
-        c := fromBasic(b)
-        configs = append(configs, c)
+        c,err := fromBasic(b)
+        if err!=nil{
+            fmt.Println("unable to load config: "+fmt.Sprintf("%#v", b)+"\n"+err.Error())
+        }else{
+            configs = append(configs, c)
+        }
     }
     return configs, nil
 }
