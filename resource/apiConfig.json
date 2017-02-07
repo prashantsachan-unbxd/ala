@@ -1,5 +1,6 @@
 [
     {
+        "id":"67355A76-5669-4F6C-9F4A-A03EE41BB292",
         "api":{
             "method": "GET",
             "url": "http://localhost:8000"
@@ -9,6 +10,7 @@
         "tags":["localhost", "8000"]
     },
     {
+        "id":"DECC624C-6FF9-44F2-A396-2BD948F31003",
         "api":{
             "method": "GET",
             "url": "http://localhost:4000"
@@ -18,6 +20,7 @@
         "tags":["localhost", "4000"]
     },
     {
+        "id":"9929E352-55F4-4481-91E6-77AA95AD44EE",
         "api":{
             "method": "GET",
             "url": "http://google.co.in"

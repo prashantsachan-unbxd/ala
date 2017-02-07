@@ -11,12 +11,12 @@ func fromBasic(src basicConf)(ApiConf, error){
     if err !=nil{
         return ApiConf{},err
     }
-    return ApiConf{src.Api, src.ValidatorType,valid, src.Tags}, nil 
+    return ApiConf{src.Id,src.Api, src.ValidatorType,valid, src.Tags}, nil 
 }
 func toBasic(src ApiConf)basicConf{
     validType:= src.Validator.Type()
     validData := structs.Map(src.Validator)
-        return basicConf{src.Api,   validType, validData, src.Tags}
+        return basicConf{src.Id,src.Api,   validType, validData, src.Tags}
 }
 func FromJson(data string) (ApiConf, error){
     var basic basicConf
