@@ -13,26 +13,25 @@ import(
 )
 
 func main(){
-    var confStore conf.ConfStore
-    confStore = &conf.FileConfStore{"./resource/apiConfig.json"}
-    apiConfigs,err :=confStore.ReadApiConf()
-    if err!=nil{
-        fmt.Println(err)
+    var confStore conf.ConfStore = &conf.FileConfStore{"./resource/apiConfig.json"}
+    cnfMgr:= conf.ConfManager{[]conf.ConfLoader{confStore},confStore }  
+    errs:= cnfMgr.Refresh(false)
+//    apiConfigs,err :=confStore.ReadApiConf()
+    if errs!=nil && len(errs)>0{
+        fmt.Println("error in reading configs")
+        fmt.Println(errs)
         fmt.Println("exiting")
         return
     }   
-    fmt.Println("apiConfigs: \n", apiConfigs)
     var exec ex.ApiExec
 //    exec = & ex.SingleExec{apiConfigs}
-    exec  = & ex.IntervalExec{Interval:5* time.Second, ApiData:apiConfigs}
+    exec  = & ex.IntervalExec{Interval:5* time.Second, ApiData:cnfMgr.GetConfs()}
  
     out:= exec.StartExec()
     
     sm:= result.TimedStateManager{6* time.Second,make(map[api.Api]time.Time)} 
     dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}, & result.StateCollector{&sm}}}
     dispatcher.StartDispatch(out)
-    cnfMgr:= conf.ConfManager{[]conf.ConfLoader{confStore},confStore }  
-    cnfMgr.Refresh(false)
     controllers:=[]ui.ReqController{
         &ui.StateController{&sm},
         &ui.ConfController{ cnfMgr},
