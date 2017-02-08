@@ -31,9 +31,11 @@ func main(){
     sm:= result.TimedStateManager{6* time.Second,make(map[api.Api]time.Time)} 
     dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}, & result.StateCollector{&sm}}}
     dispatcher.StartDispatch(out)
+    cnfMgr:= conf.ConfManager{[]conf.ConfLoader{confStore},confStore }  
+    cnfMgr.Refresh(false)
     controllers:=[]ui.ReqController{
         &ui.StateController{&sm},
-        &ui.ConfController{&apiConfigs, confStore},
+        &ui.ConfController{ cnfMgr},
     }
     r:= mux.NewRouter()
     for _,h:= range controllers{

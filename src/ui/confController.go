@@ -6,12 +6,10 @@ import(
     "encoding/json"
     "io/ioutil"
     "github.com/satori/go.uuid"
-    "errors"
      )
 
 type ConfController struct{
-    Configs *[]conf.ApiConf
-    ConfWriter conf.ConfWriter
+    Mgr conf.ConfManager
 }
 
 func (h *ConfController) Register(r *mux.Router){
@@ -39,19 +37,7 @@ func (h *ConfController)delConf(confId string) error{
     if err !=nil{
         return err
     }
-
-    for idx,cnf := range *h.Configs{
-        if cnf.Id == id{
-            *h.Configs = append((*h.Configs)[:idx], (*h.Configs)[idx+1:]...) 
-            err:= h.ConfWriter.WriteApiConf(*h.Configs)
-            if err!=nil{
-                return err
-            }else{
-                return nil
-            }
-        }
-    }
-    return errors.New("No apiConf found with ID: "+id.String())
+    return h.Mgr.DelteConf(id)
 }
 func (h *ConfController)addConf(w http.ResponseWriter, r *http.Request){
     data, err := ioutil.ReadAll(r.Body)
@@ -64,20 +50,20 @@ func (h *ConfController)addConf(w http.ResponseWriter, r *http.Request){
         http.Error(w, "unable to create apiConf from data\n"+ err.Error(), http.StatusBadRequest)
         return
     }
-    newConfigSet := append(*h.Configs, newConf)
-    err= h.ConfWriter.WriteApiConf(newConfigSet)
-    if err!=nil{
-        http.Error(w,"unable to persist new apiConf\n"+ err.Error(), http.StatusInternalServerError)
+    id, err1 := h.Mgr.AddConf(newConf)
+    if err1!=nil{
+        http.Error(w,"unable to persist new apiConf\n"+ err1.Error(), http.StatusInternalServerError)
         return
     }
-    *h.Configs = newConfigSet
-    w.Write([]byte("successfully added new api to tracking list"))
+    w.Write([]byte("successfully added new api to tracking list with id:"+id.String()))
 }
 func (h *ConfController)getConfs(w http.ResponseWriter, r *http.Request){
     tags, ok:= r.URL.Query()["tags"]
-    filtered  := *h.Configs
-    if ok && len(filtered)>0{
-       filtered = filter(filtered, tags)
+    var filtered []conf.ApiConf
+    if ok && len(tags)>0{
+       filtered = h.Mgr.FilterConfs( tags)
+    }else{
+        filtered = h.Mgr.GetConfs()
     }
     js,err:= json.Marshal(filtered)
     if err != nil{
@@ -87,7 +73,7 @@ func (h *ConfController)getConfs(w http.ResponseWriter, r *http.Request){
     w.Header().Set("Content-Type", "application/json")
     w.Write(js)
 }
-func filter(confs []conf.ApiConf, tags []string)[]conf.ApiConf{
+func filter1(confs []conf.ApiConf, tags []string)[]conf.ApiConf{
     var filtered [] conf.ApiConf
     for _, c := range confs{
         found := false
