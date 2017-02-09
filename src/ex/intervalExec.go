@@ -6,10 +6,9 @@ import(
     )
 type IntervalExec struct{
     Interval time.Duration
-    ApiData []conf.ApiConf
+    CnfMgr conf.ConfManager
     done chan struct{}
 }
-
 func (e *IntervalExec) StartExec()<-chan Event   {
     out:= make(chan Event)
     e.done = make(chan struct{})
@@ -24,7 +23,7 @@ func (e *IntervalExec) StartExec()<-chan Event   {
                     ticker.Stop()
                 }else{
                     fmt.Println("launching batch at: ", t)
-                    go fireAll(e.ApiData, out)
+                    go fireAll(e.CnfMgr.GetConfs(), out)
                 }
             case <-e.done :
                 // wait till next cycle to close the channel

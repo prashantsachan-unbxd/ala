@@ -24,8 +24,8 @@ func main(){
         return
     }   
     var exec ex.ApiExec
-//    exec = & ex.SingleExec{apiConfigs}
-    exec  = & ex.IntervalExec{Interval:5* time.Second, ApiData:cnfMgr.GetConfs()}
+//    exec = & ex.SingleExec{cnfMgr}
+    exec  = & ex.IntervalExec{Interval:5* time.Second, CnfMgr:cnfMgr}
  
     out:= exec.StartExec()
     

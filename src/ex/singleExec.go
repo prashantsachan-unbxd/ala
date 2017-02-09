@@ -3,12 +3,12 @@ import(
     "conf"
     )
 type SingleExec struct{
-    ApiData [] conf.ApiConf
+    CnfMgr conf.ConfManager
 }
 
 func (e *SingleExec) StartExec() <-chan Event  {
     out:= make(chan Event)      
-    go fireAll(e.ApiData, out)
+    go fireAll(e.CnfMgr.GetConfs(), out)
     return out
 }
 
