@@ -6,7 +6,6 @@ import(
     "ex"    
     "result"
     "conf"
-    "api"
     "ui"
     mux "github.com/gorilla/mux"
     "net/http"
@@ -16,7 +15,6 @@ func main(){
     var confStore conf.ConfStore = &conf.FileConfStore{"./resource/apiConfig.json"}
     cnfMgr:= conf.ConfManager{[]conf.ConfLoader{confStore},confStore }  
     errs:= cnfMgr.Refresh(false)
-//    apiConfigs,err :=confStore.ReadApiConf()
     if errs!=nil && len(errs)>0{
         fmt.Println("error in reading configs")
         fmt.Println(errs)
@@ -29,7 +27,7 @@ func main(){
  
     out:= exec.StartExec()
     
-    sm:= result.TimedStateManager{6* time.Second,make(map[api.Api]time.Time)} 
+    sm:= result.TimedStateManager{6* time.Second, 6* time.Second} 
     dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}, & result.StateCollector{&sm}}}
     dispatcher.StartDispatch(out)
     controllers:=[]ui.ReqController{
