@@ -28,7 +28,7 @@ func main(){
     out:= exec.StartExec()
     
     sm:= result.TimedStateManager{6* time.Second, 6* time.Second} 
-    dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}, & result.StateCollector{&sm}}}
+    dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}, & result.StateCollector{&sm}, & result.KafkaForwarder{}}}
     dispatcher.StartDispatch(out)
     controllers:=[]ui.ReqController{
         &ui.StateController{&sm},
