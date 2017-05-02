@@ -16,10 +16,13 @@ public class ConfKeys {
     public static final String KAFKA_CONSUMERGROUP = "kafka.consumer.group";
     public static final String KAFKA_SPOUT_COUNT = "kafkaspout.count";
 
-    //sink bolt
-    //public static final String SINK_TYPE_BOLT_ID = "sink-type-bolt";
-    //public static final String SINK_BOLT_COUNT = "sinkbolt.count";
-
     public static final String INFLUX_BOLT_ID = "influx-bolt";
     public static final String INFLUX_BOLT_COUNT = "influxbolt.count";
+
+    // influx db configuration
+    public static final String INFLUX_HOSTPORT = "influx.hostport";
+    public static final String INFLUX_DBNAME = "influx.dbname";
+    public static final String INFLUX_USER  = "influx.user";
+    public static final String INFLUX_PASS  = "influx.pass";
+
 }

@@ -1,5 +1,6 @@
 package com.unbxd.monitoring.alaStorm.spout;
 
+import backtype.storm.Config;
 import backtype.storm.spout.SchemeAsMultiScheme;
 import com.unbxd.monitoring.alaStorm.util.ConfKeys;
 import storm.kafka.*;

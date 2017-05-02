@@ -23,7 +23,7 @@ func main(){
     }   
     var exec ex.ApiExec
 //    exec = & ex.SingleExec{cnfMgr}
-    exec  = & ex.IntervalExec{Interval:10* time.Second, CnfMgr:cnfMgr}
+    exec  = & ex.IntervalExec{Interval:3* time.Second, CnfMgr:cnfMgr}
  
     out:= exec.StartExec()
     
