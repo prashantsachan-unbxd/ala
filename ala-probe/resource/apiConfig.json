@@ -1,0 +1,42 @@
+[
+    {
+        "id":"67355A76-5669-4F6C-9F4A-A03EE41BB292",
+        "api":{
+            "method": "GET",
+            "url": "http://localhost:8000"
+        },
+        "validator_type": "REhttpCode",
+        "validator":{"reHost": "http://ec2-54-173-96-124.compute-1.amazonaws.com:8081", "reBody":{
+            "domain": "platform.monitoring",
+            "name":"httpStatusCheck"}
+            },
+        "tags":["localhost", "8000"]
+    },
+    {
+        "id":"DECC624C-6FF9-44F2-A396-2BD948F31003",
+        "api":{
+            "method": "GET",
+            "url": "http://localhost:4000"
+        },
+        "validator_type": "REhttpCode",
+        "validator":{"reHost": "http://ec2-54-173-96-124.compute-1.amazonaws.com:8081", "reBody":{
+            "domain": "platform.monitoring",
+            "name":"httpStatusCheck"}
+            },
+        "tags":["localhost", "4000"]
+    },
+    {
+        "id":"9929E352-55F4-4481-91E6-77AA95AD44EE",
+        "api":{
+            "method": "GET",
+            "url": "http://google.co.in"
+        },
+        "validator_type": "REhttpCode",
+        "validator":{"reHost": "http://ec2-54-173-96-124.compute-1.amazonaws.com:8081", "reBody":{
+            "domain": "platform.monitoring",
+            "name":"httpStatusCheck"}
+            },
+        "tags":["google"]
+    }
+]
+
