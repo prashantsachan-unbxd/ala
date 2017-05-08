@@ -11,7 +11,7 @@ var services []Service
 type FileServiceDao struct{
     FilePath string
 }
-func (d *FileServiceDao) New()(){
+func (d *FileServiceDao) Init()(){
     configs, err := loadFromFile(d.FilePath)
     if err!=nil{
         fmt.Println("unable to read service configs from file", d.FilePath,"\n",err)

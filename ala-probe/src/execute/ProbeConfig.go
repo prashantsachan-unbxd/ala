@@ -7,6 +7,6 @@ import (
 type ProbeConfig struct{
     ProbeType string `json:"probeType"`
     ProbeData map[string]interface{} `json:"probeData"`
-    Metrics []map[string]string `json:"metrics"`
+    Metrics []map[string]interface{} `json:"metrics"`
 
 }

@@ -7,6 +7,7 @@ import(
 type IntervalExec struct{
     Interval time.Duration
     ServiceStore topo.ServiceDao
+    REDao RuleEngineDao
     done chan struct{}
 }
 
@@ -23,10 +24,11 @@ func (e *IntervalExec) StartExec()<-chan Event   {
                     close(out)
                     ticker.Stop()
                 }else{
-                    fmt.Println("launching batch at: ", t)
+                    
                     services, err := e.ServiceStore.GetAllServices()
+                    fmt.Println("launching batch at: ", t, "total services: ", len(services))
                     if err == nil{
-                        go fireAll(services, out)
+                        go fetchMetrics(e.REDao, services, out)
                     }else{
                         fmt.Println("failed to launch batch, error in getting services", err)
                     }
