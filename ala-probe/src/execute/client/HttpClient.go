@@ -6,6 +6,9 @@ import (
     "net/http"
     resp "execute/response"
     topo "topology"
+    "net/http/httputil"
+    "fmt"
+    "strconv"
     )
 const HTTP_CONFIG_PATH = "path"
 const HTTP_CONFIG_METHOD = "method"
@@ -21,7 +24,7 @@ func (this *HttpClient) isEmpty()bool{
 }
 func (this *HttpClient) New(config map[string]interface{}, service topo.Service) (ProbeClient, error){
     client := http.Client{}
-    url := service.Host + ":"+string(service.Port) +config[HTTP_CONFIG_PATH].(string)
+    url := service.Host + ":"+strconv.Itoa(service.Port) +config[HTTP_CONFIG_PATH].(string)
     method := "GET"
     m,ok:= config[HTTP_CONFIG_METHOD]
     if(ok){
@@ -44,6 +47,8 @@ func (this *HttpClient) Execute()(resp.ProbeResponse, error){
     if (this == Empty){
         return nil, errors.New("empty http client found")
     }
+    rDump, _ := httputil.DumpRequest(&this.req, true)
+    fmt.Println(string(rDump))
     res, err := this.client.Do(&this.req)
     if err !=nil{
         return nil,err

@@ -16,7 +16,7 @@ func main(){
     var REDao execute.RuleEngineDao = execute.RuleEngineDao{"http://ec2-54-173-96-124.compute-1.amazonaws.com", 8081, "",""}
     var exec execute.Executor
 //    exec = & ex.SingleExec{cnfMgr}
-    exec  = & execute.IntervalExec{Interval:5* time.Second, ServiceStore:serviceDao, REDao: REDao}
+    exec  = & execute.IntervalExec{Interval:7* time.Second, ServiceStore:serviceDao, REDao: REDao}
     fmt.Println("starting executor")
     out:= exec.StartExec()
     v:= <-out
