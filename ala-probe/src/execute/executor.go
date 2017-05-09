@@ -1,9 +1,10 @@
 package execute
 
 import (
+    "result"
 )
 
 type Executor interface{
-    StartExec() <-chan Event
+    StartExec() <-chan result.Event
     StopExec()
 }

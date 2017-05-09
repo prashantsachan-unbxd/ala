@@ -3,6 +3,7 @@ import(
     "time"
     "fmt"
     topo "topology"
+    "result"
     )
 type IntervalExec struct{
     Interval time.Duration
@@ -11,8 +12,8 @@ type IntervalExec struct{
     done chan struct{}
 }
 
-func (e *IntervalExec) StartExec()<-chan Event   {
-    out:= make(chan Event)
+func (e *IntervalExec) StartExec()<-chan result.Event   {
+    out:= make(chan result.Event)
     e.done = make(chan struct{})
     go func(){
         terminated := false

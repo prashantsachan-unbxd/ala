@@ -1,6 +1,6 @@
 package client
 import (
-    resp "execute/response"
+    resp "response"
     topo "topology"
     )
 type ProbeClient interface{

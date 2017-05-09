@@ -4,15 +4,16 @@ import (
         "fmt"
         topo "topology"
         "encoding/json"
-        "execute/client"
-        "execute/response"
+        "client"
+        "response"
         "time"
+        "result"
     )
 
 const FIELD_METRIC_NAME = "metricName"
 const FIELD_DEFAULT_VALUE = "defaultMetricValue"
 const FIELD_METRICS = "metrics"
-func fetchMetrics(reDao RuleEngineDao, services []topo.Service, out chan Event){
+func fetchMetrics(reDao RuleEngineDao, services []topo.Service, out chan result.Event){
     // var results map[string]interface{}
     for _,s := range services{
         confs:= fetchProbeConfig(s,reDao);
@@ -36,7 +37,7 @@ func fetchMetrics(reDao RuleEngineDao, services []topo.Service, out chan Event){
             metrics := getMetricValues(reDao, pResp, c.Metrics)
             for k,v := range metrics{
                 fmt.Println("serviceId:", s.Id, k,"=",v)
-                out <- Event{s,timestamp, k,v.(float64)}
+                out <- result.Event{s,timestamp, k,v.(float64)}
                 
             }
         }

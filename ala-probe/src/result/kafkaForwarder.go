@@ -5,7 +5,6 @@ import(
     "encoding/json"
     "fmt"
     "time"
-    "execute"
     )
 // var brokerlist = []string{"localhost:9092"}
 
@@ -18,7 +17,7 @@ type KafkaForwarder struct{
 func (this *KafkaForwarder) Init(){
     producer = newAsyncProducer(this.BrokerList)
 }
-func (this *KafkaForwarder) Consume(e execute.Event){
+func (this *KafkaForwarder) Consume(e Event){
     fmt.Println("forwarding event to kafka :", e)
     if(producer == nil ){
         fmt.Println("nil kafkaProducer")    

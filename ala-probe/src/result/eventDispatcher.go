@@ -1,11 +1,10 @@
 package result
 
 import(
-    "execute"
 )
 
 type EventDispatcher interface{
-    StartDispatch( c <-chan execute.Event)
+    StartDispatch( c <-chan Event)
     StopDispatch()
 }
 
@@ -14,7 +13,7 @@ type SimpleDispatcher struct{
     done chan struct{}
 }
 
-func (this *SimpleDispatcher) StartDispatch(c <-chan execute.Event){
+func (this *SimpleDispatcher) StartDispatch(c <-chan Event){
     for _,con:= range this.Consumers{
         con.Init()
     }
