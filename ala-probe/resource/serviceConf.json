@@ -2,7 +2,7 @@
     {
         "id":"67355A76-5669-4F6C-9F4A-A03EE41BB292",
         "host":"http://searchstaging.cloudapp.net",
-        "port":80,
+        "port":8086,
         "class":["SOLRHTTPSTATUSCHECK"]
     }
 ]
