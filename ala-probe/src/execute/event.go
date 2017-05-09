@@ -7,7 +7,8 @@ import (
 
 
 type Event struct{
-    Srvc topo.Service
-    Timestamp time.Time
-    Metric float64
+    Srvc topo.Service `json:"service"`
+    Timestamp time.Time `json:"timestamp"`
+    MetricName string `json:"metricName"`
+    MetricVal float64 `json:"value"`
 }

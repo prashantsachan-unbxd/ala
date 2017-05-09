@@ -6,6 +6,7 @@ import (
         "encoding/json"
         "execute/client"
         "execute/response"
+        "time"
     )
 
 const FIELD_METRIC_NAME = "metricName"
@@ -31,13 +32,14 @@ func fetchMetrics(reDao RuleEngineDao, services []topo.Service, out chan Event){
                 fmt.Println(pErr)
                 //forward the default valued event
             }
+            timestamp:= time.Now();
             metrics := getMetricValues(reDao, pResp, c.Metrics)
             for k,v := range metrics{
                 fmt.Println("serviceId:", s.Id, k,"=",v)
+                out <- Event{s,timestamp, k,v.(float64)}
+                
             }
         }
-        
-
     }
 }
 
@@ -70,31 +72,6 @@ func getMetricValues(reDao RuleEngineDao, resp response.ProbeResponse, metrics[]
     return vals
 }
 
-        // instantiate one probeClient per ProbeConfig
-
-        // Send request as per ProbeClient
-
-        // call ruleEngine for each of response & each metricFilter
-
-        // create Event for each combination
-
-        // send it to
-
-//Service
-    // Id string `json:"id"`
-    // Host string `json:"host"`
-    // Port int `json:"port"`
-    // Class []string `json:"class"`
-    // Metadata map[string]interface{} `json:"metadata"`
-
-//ProbeConfig
-    // ProbeType string `json:"probeType"`
-    // ProbeData map[string]interface{} `json:"probeData"`
-    // Metrics []map[string]string `json:"metrics"`
-// func getClient( conf ProbeConfig, service topo.Service)ProbeClient, error{
-
-//     GetClient(valType string, data map[string]interface{}, service topo.Service) (ProbeClient, error){
-// }
 func fetchProbeConfig(service topo.Service, reDao RuleEngineDao)[]ProbeConfig{
     fmt.Println("fetching probeConfigs for service: ", service.Id, "class:", service.Class)
     var confs []ProbeConfig

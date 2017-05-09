@@ -7,6 +7,7 @@ import(
     // "net/http"
     topo "topology"
     "execute"
+    "encoding/json"
 
 )
 
@@ -19,8 +20,15 @@ func main(){
     exec  = & execute.IntervalExec{Interval:7* time.Second, ServiceStore:serviceDao, REDao: REDao}
     fmt.Println("starting executor")
     out:= exec.StartExec()
-    v:= <-out
-    fmt.Println("received event from executor", v)
+    for{
+        v:= <- out
+        eStr,jErr:= json.Marshal(v)
+        if jErr !=nil{
+            fmt.Println("error in marshalling evnt", jErr)
+        }else{
+            fmt.Println("event Received:", string(eStr))
+        }
+    }
     
     
     // exec.StopExec()
