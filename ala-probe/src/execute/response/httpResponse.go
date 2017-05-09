@@ -1,10 +1,8 @@
 package response
 
 import(
-    "encoding/json"
     "net/http"
     "io/ioutil"
-    "fmt"
     )
 const HTTP_FIELD_STATUS = "status"
 const HTTP_FIELD_HEADERS = "headers"
@@ -15,26 +13,30 @@ type HttpResponse struct{
     Resp http.Response
 }
     
-func (this *HttpResponse) getType()string{
+type httpRespModel struct{
+    status int 
+    headers http.Header 
+    body string 
+    version string 
+}
+func (this *httpRespModel) asMap()map[string]interface{}{
+    m:= make(map[string]interface{})
+    m[HTTP_FIELD_STATUS] = this.status
+    m[HTTP_FIELD_HEADERS] = this.headers
+    m[HTTP_FIELD_VERSION] = this.version
+    m[HTTP_FIELD_BODY] = this.body
+    return m;
+}
+func (this *HttpResponse) GetType()string{
     return "HTTP"
 }
 
-func (this *HttpResponse) getJson()string{
-    m:= make(map[string]interface{})
-    m[HTTP_FIELD_STATUS]= this.Resp.StatusCode
-    m[HTTP_FIELD_HEADERS]= this.Resp.Header
+func (this *HttpResponse) AsMap()map[string]interface{}{
     defer this.Resp.Body.Close()
     respBody,err := ioutil.ReadAll(this.Resp.Body)
     if err !=nil{
         respBody = nil    
     }
-    m[HTTP_FIELD_BODY] = respBody
-    m[HTTP_FIELD_VERSION] = this.Resp.Proto
-    val, err := json.Marshal(m)
-    if err !=nil{
-        fmt.Println("HttpResponse: unable to convert to Json: ", m, "due to error:", err)
-        return ""
-    }else{
-        return string(val)
-    }
+    modelResp:= httpRespModel{ this.Resp.StatusCode, this.Resp.Header,string(respBody), this.Resp.Proto}
+    return modelResp.asMap()
 }

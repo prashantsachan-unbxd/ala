@@ -1,6 +1,6 @@
 package response
 
 type ProbeResponse interface{
-    getType()string
-    getJson()string
+    GetType()string
+    AsMap()map[string]interface{}
 }
