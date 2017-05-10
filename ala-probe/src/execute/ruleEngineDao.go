@@ -12,7 +12,10 @@ import(
     "net/http/httputil"
     "response"
 )
-
+//RuleEngineDao is a Data Access Object to be used for interacting with RuleEngine
+// It resolves two kind of rules
+//      1) serviceClass => ProbeConfig
+//      2) ProbeResponse => metricValue
 type RuleEngineDao struct{
     Host string
     Port int
@@ -112,6 +115,10 @@ func (e *RuleEngineDao) GetProbeConfigs(serviceClass string) ([]ProbeConfig, err
 }
 
 // return the first rule matching with the metricName
+// the segment passed to it is expected to contain following keys:
+//      domain =    platform.monitoring
+//      subdomain = metricCollect
+//      metricName= <metricName to be computed>
 func (e *RuleEngineDao) GetMetricVal(resp response.ProbeResponse, segment map[string]interface{}, defaultVal interface{})(interface{}, error){
     segment[SEGMENT_FIELD_RESPONSE] = resp.AsMap()
     values,err := e.resolveToVal(segment)

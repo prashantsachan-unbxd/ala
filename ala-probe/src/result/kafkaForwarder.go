@@ -10,10 +10,14 @@ import(
 
 var TOPIC_NAME = "monitoring"
 var producer sarama.AsyncProducer
+//KafkaForwarder is an kafka facing implementation of EventConsumer
+//it forwards each Event to Kafka
 type KafkaForwarder struct{
+    //BrokerList : list of brokers to be used for connecting to kafka
     BrokerList []string
 
 }
+//Init creates an async Kafka producer
 func (this *KafkaForwarder) Init(){
     producer = newAsyncProducer(this.BrokerList)
 }

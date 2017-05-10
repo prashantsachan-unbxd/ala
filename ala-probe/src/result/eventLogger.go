@@ -3,7 +3,7 @@ package result
 import(
     log "github.com/Sirupsen/logrus"
     )
-
+//EventLogger is an EventConsumer which simply logs each of the event received
 type EventLogger struct{
 
 }

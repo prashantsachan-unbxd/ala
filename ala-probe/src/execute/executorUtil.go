@@ -12,14 +12,16 @@ import (
 const FIELD_METRIC_NAME = "metricName"
 const FIELD_DEFAULT_VALUE = "defaultMetricValue"
 const FIELD_METRICS = "metrics"
+//fetchMetrics computes all the metrics for all the services & send an event for each of them to the out channel
 func fetchMetrics(reDao RuleEngineDao, services []topo.Service, out chan result.Event){
-    // var results map[string]interface{}
+    //fetch metrics for each service
     for _,s := range services{
+        // get the probeConfigs from RuleEngine
         confs:= fetchProbeConfig(s,reDao)
         log.WithFields(log.Fields{"module":"executor","serviceId":s.Id,"stage":"probeConfig"}).Debug(
             "fetched ProbeConfig")
         for _,c := range confs{
-            
+            //for each probeConfig, create a client & send probeRequest 
             log.WithFields(log.Fields{"module":"executor", "probeConfig":c}).Debug()
             client, cErr:= client.GetClient(c.ProbeType, c.ProbeData, s)
             if(cErr!=nil){
@@ -40,6 +42,8 @@ func fetchMetrics(reDao RuleEngineDao, services []topo.Service, out chan result.
         }
     }
 }
+
+//collectAndSendMetrics computes set of metrics from a probeResponse & sends an event for each of them to channel
 func collectAndSendMetrics(reDao RuleEngineDao, pResp response.ProbeResponse, 
     metricConfs[]map[string]interface{}, service topo.Service, out chan result.Event){
     timestamp:= time.Now()
@@ -50,9 +54,10 @@ func collectAndSendMetrics(reDao RuleEngineDao, pResp response.ProbeResponse,
         out <- result.Event{service,timestamp, k,v.(float64)}
     }
 }
-
+//getMetricValues interacts with RuleEngineDao & computes metrics for a ProbeResponse
 func getMetricValues(reDao RuleEngineDao, resp response.ProbeResponse, metrics[]map[string]interface{})     (map[string]interface{}){
     vals := make(map[string]interface{})
+    //send default values if ProbeRespose is nil
     if resp == nil {
         for _,m1 := range metrics{
             vals[m1[FIELD_METRIC_NAME].(string)] = m1[FIELD_DEFAULT_VALUE]
@@ -79,11 +84,12 @@ func getMetricValues(reDao RuleEngineDao, resp response.ProbeResponse, metrics[]
     }
     return vals
 }
-
+//getMetricValues interacts with RuleEngine & return list of Probeconfigs for a particular service
 func fetchProbeConfig(service topo.Service, reDao RuleEngineDao)[]ProbeConfig{
     log.WithFields(log.Fields{"module":"executor", "serviceId":service.Id, "class":service.Class}).Debug(
         "fetching probeConfigs for service: ")
     var confs []ProbeConfig
+    // send one request for each of the serviceClass
     for _,c := range service.Class{
         classConf,err:= reDao.GetProbeConfigs(c)
         if err !=nil{

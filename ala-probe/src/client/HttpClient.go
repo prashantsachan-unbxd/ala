@@ -15,6 +15,9 @@ const HTTP_CONFIG_METHOD = "method"
 const HTTP_CONFIG_DATA = "data"
 
 var Empty = &HttpClient{}
+
+//HttpClient is an HTTP protocol implementation to probe a service
+//it connects to the service over HTTP makes a requsts & wraps the response as HttpResponse
 type HttpClient struct{
     client http.Client
     req http.Request
@@ -22,6 +25,7 @@ type HttpClient struct{
 func (this *HttpClient) isEmpty()bool{
     return this == Empty
 }
+//New constructs a new HttpClient object with details required to make an HTTP call
 func (this *HttpClient) New(config map[string]interface{}, service topo.Service) (ProbeClient, error){
     client := http.Client{}
     url := service.Host + ":"+strconv.Itoa(service.Port) +config[HTTP_CONFIG_PATH].(string)
@@ -42,7 +46,8 @@ func (this *HttpClient) New(config map[string]interface{}, service topo.Service)
         return &HttpClient{client, *req}, nil
     }
 }
-    // Executes the probe request as per config & return a result
+//Execute method makes an HTTP call to the service according to config supplied at initialization
+//it wraps & returns the response of the reqest into HttpResponse
 func (this *HttpClient) Execute()(resp.ProbeResponse, error){
     if (this == Empty){
         return nil, errors.New("empty http client found")
