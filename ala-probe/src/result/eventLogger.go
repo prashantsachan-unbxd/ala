@@ -1,7 +1,7 @@
 package result
 
 import(
-    "fmt"
+    log "github.com/Sirupsen/logrus"
     )
 
 type EventLogger struct{
@@ -11,5 +11,5 @@ func (this *EventLogger)Init(){
 
 }
 func (this *EventLogger) Consume(e Event){
-    fmt.Println("logging event: ", e)    
+    log.WithFields(log.Fields{"module":"EventLogger","event":e}).Info("event received") 
 }

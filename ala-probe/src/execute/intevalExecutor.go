@@ -1,7 +1,7 @@
 package execute
 import(
     "time"
-    "fmt"
+    log "github.com/Sirupsen/logrus"
     topo "topology"
     "result"
     )
@@ -27,11 +27,13 @@ func (e *IntervalExec) StartExec()<-chan result.Event   {
                 }else{
                     
                     services, err := e.ServiceStore.GetAllServices()
-                    fmt.Println("launching batch at: ", t, "total services: ", len(services))
+                    log.WithFields(log.Fields{"module":"executor","timestamp":t,
+                        "numServices":len(services)}).Info("launching executionbatch")
                     if err == nil{
                         go fetchMetrics(e.REDao, services, out)
                     }else{
-                        fmt.Println("failed to launch batch, error in getting services", err)
+                        log.WithFields(log.Fields{"module":"executor","error": err}).Fatal(
+                            "failed to launch batch, error in getting services")
                     }
 
                 }
@@ -39,7 +41,8 @@ func (e *IntervalExec) StartExec()<-chan result.Event   {
                 // wait till next cycle to close the channel
                 // allow current batch to finish
                 terminated = true
-                fmt.Println("stopping interval executor, won't schedule any more batches")
+                log.WithFields(log.Fields{"module":"executor"}).Info(
+                    "stopping interval executor, won't schedule any more batches")
         }
         }
     }()

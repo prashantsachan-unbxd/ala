@@ -4,10 +4,10 @@ import (
     "errors"
     "strings"
     "net/http"
+    log "github.com/Sirupsen/logrus"
     resp "response"
     topo "topology"
     "net/http/httputil"
-    "fmt"
     "strconv"
     )
 const HTTP_CONFIG_PATH = "path"
@@ -48,7 +48,7 @@ func (this *HttpClient) Execute()(resp.ProbeResponse, error){
         return nil, errors.New("empty http client found")
     }
     rDump, _ := httputil.DumpRequest(&this.req, true)
-    fmt.Println(string(rDump))
+    log.WithFields(log.Fields{"module": "httpClient","request":rDump}).Info("Http Probe Request")
     res, err := this.client.Do(&this.req)
     if err !=nil{
         return nil,err

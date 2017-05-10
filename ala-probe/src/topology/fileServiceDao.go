@@ -1,7 +1,7 @@
 package topology
 
 import(
-    "fmt"
+    log "github.com/Sirupsen/logrus"
     "encoding/json"
     "io/ioutil"
     "errors"
@@ -14,10 +14,12 @@ type FileServiceDao struct{
 func (d *FileServiceDao) Init()(){
     configs, err := loadFromFile(d.FilePath)
     if err!=nil{
-        fmt.Println("unable to read service configs from file", d.FilePath,"\n",err)
+        log.WithFields(log.Fields{"module":"serviceDao","path":d.FilePath,
+            "error":err}).Error("unable to read ServiceConf from File") 
     }else{
         services = configs
-        fmt.Println("loaded service configs from file", d.FilePath)
+        log.WithFields(log.Fields{"module":"KafkaForwarder","path":d.FilePath}).Info(
+        "Loaded service conf from file") 
     }
 }
 

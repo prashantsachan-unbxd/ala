@@ -7,7 +7,7 @@ import(
     "time"
     "bytes"
     "io/ioutil"
-    "fmt"
+    log "github.com/Sirupsen/logrus"
     "strconv"
     "net/http/httputil"
     "response"
@@ -38,7 +38,6 @@ const RESPONSE_FIELD_VALUE = "value"
 func (e *RuleEngineDao) resolveRule( segment map[string]interface{}) (map[string] interface{}, error){
     client := http.Client{Timeout: 5000* time.Millisecond}
     url:= e.Host +":"+ strconv.Itoa(e.Port)+RULE_RESOLUTION_PATH
-    // fmt.Println("firign rule Resolve requst to url: ", url)
     data,jsonErr :=  json.Marshal(segment);
     if jsonErr!=nil{
         return nil, jsonErr
@@ -52,7 +51,7 @@ func (e *RuleEngineDao) resolveRule( segment map[string]interface{}) (map[string
         req.SetBasicAuth(e.User, e.Pass)
     }
     rDump, _ := httputil.DumpRequest(req, true)
-    fmt.Println(string(rDump))
+    log.WithFields(log.Fields{"module":"reDao","request":rDump}).Debug("ruleResolve requst")
     res, httpErr := client.Do(req)
     if httpErr !=nil {
         return nil, httpErr
@@ -89,7 +88,6 @@ func (e *RuleEngineDao) resolveToVal(segment map[string]interface{}) (map[string
 
 // returns List of ProbeConfigs for given serviceClass 
 func (e *RuleEngineDao) GetProbeConfigs(serviceClass string) ([]ProbeConfig, error){
-    // fmt.Println("fetching probeConfig for serice class:",serviceClass)
     segment := map[string]interface{}{
         SEGMENT_FIELD_DOMAIN: SEGMENT_VALUE_DOMAIN,
         SEGMENT_FIELD_SUBDOMAIN: SEGMENT_VALUE_SUBDOMAIN,
@@ -104,8 +102,8 @@ func (e *RuleEngineDao) GetProbeConfigs(serviceClass string) ([]ProbeConfig, err
         var c ProbeConfig
         jsonErr:= json.Unmarshal([]byte(v.(string)),&c)
         if jsonErr !=nil{
-            fmt.Println("unable to create ProbeConfig from: "+v.(string))
-            fmt.Println(jsonErr)
+            log.WithFields(log.Fields{"module":"reDao","class":serviceClass,
+                "value":v,"error":jsonErr}).Info("unable to create ProbeConfig obj from Json")
         }else{
             probeConfs = append(probeConfs, c);
         }
