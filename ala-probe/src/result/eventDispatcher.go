@@ -1,34 +1,40 @@
 package result
 
 import(
-    "ex"
 )
-
+//EventDispatcher interface for sending an event to multiple EventConsumers
 type EventDispatcher interface{
-    StartDispatch( c <-chan ex.Event)
+    //StartDispatch starts dispatching events, reading from an input channel
+    StartDispatch( c <-chan Event)
+    //StopDispatch shuts down the dispatch process
     StopDispatch()
 }
-
+//SimpleDispatcher implementation of EventDispatcher which sends each event to multiple Consumers
 type SimpleDispatcher struct{
+    //Consumers to which events should be sent
     Consumers [] EventConsumer
+    //done is an internal channel to control (shut down) dispatch process
     done chan struct{}
 }
 
-func (d *SimpleDispatcher) StartDispatch(c <-chan ex.Event){
-    d.done = make(chan struct{})
+func (this *SimpleDispatcher) StartDispatch(c <-chan Event){
+    for _,con:= range this.Consumers{
+        con.Init()
+    }
+    this.done = make(chan struct{})
     go func(){
         for{
         select{
             case e:= <- c:
-                for _,con:= range d.Consumers{
+                for _,con:= range this.Consumers{
                     con.Consume(e)
                 }
-            case <- d.done:
+            case <- this.done:
                 return
         }
     }
     }()
 }
-func (d *SimpleDispatcher)StopDispatch(){
-    close(d.done)
+func (this *SimpleDispatcher)StopDispatch(){
+    close(this.done)
 }

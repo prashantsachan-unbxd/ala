@@ -1,9 +1,11 @@
 package result
 
-import(
-    "ex"
+import (
     )
-
+//EventConsumer interface is contract for consumers which process an Event
 type EventConsumer interface{
-    Consume(e ex.Event)
+    //Init initializes a consumer
+    Init()
+    //Consume  : processes an Event
+    Consume(e Event)
 }

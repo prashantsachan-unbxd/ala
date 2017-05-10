@@ -28,7 +28,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class InfluxBolt extends BaseRichBolt {
     Logger logger = LoggerFactory.getLogger(InfluxBolt.class);
-    public static final String measureName = "availability";
+    public static final String MSG_FIELD_SERVICE = "service";
+    public static final String MSG_FIELD_ID = "id";
+    public static final String MSG_FIELD_METRIC_NAME = "metricName";
+    public static final String MSG_FIELD_METRIC_VALUE= "value";
+
+
+    public static final String FIELD_SERVICE_ID = "serviceId";
     public static final String RET_POLICY = "default";
     private OutputCollector collector;
     String dbName;
@@ -56,11 +62,15 @@ public class InfluxBolt extends BaseRichBolt {
         try {
             Map<String, Object> data = jsonMapper.readValue(val, Map.class);
 //            Map<String, String> apiData = (Map<String, String>) data.get("Api");
-            long t = toLong((String) data.get("Timestamp"));
-            Point p = Point.measurement(measureName)
+            long t = toLong((String) data.get("timestamp"));
+            String metricName = (String) data.get(MSG_FIELD_METRIC_NAME);
+            Point p = Point.measurement(metricName)
                     .time(t, TimeUnit.MILLISECONDS)
-                    .addField("url", (String) ((Map) data.get("Api")).get("url"))
-                    .addField("status", toInt((String) data.get("Status")))
+                    .addField(FIELD_SERVICE_ID, (String) ((Map) data.get
+                            (MSG_FIELD_SERVICE)).get(MSG_FIELD_ID))
+                    .addField(MSG_FIELD_METRIC_NAME, metricName)
+                    .addField(MSG_FIELD_METRIC_VALUE,(Number) data.get
+                            (MSG_FIELD_METRIC_VALUE))
                     .build();
             influxDB.write(dbName, RET_POLICY, p);
             collector.ack(tuple);
@@ -72,14 +82,13 @@ public class InfluxBolt extends BaseRichBolt {
     }
 
     private long toLong(String nanoTimeStamp) {
-        //"2017-04-24T17:36:44.657839706+05:30"
         int idx = nanoTimeStamp.indexOf('.')+3;
         int plusIdx = nanoTimeStamp.indexOf('+');
         int minusIdx = nanoTimeStamp.indexOf('-');
         int max = plusIdx>minusIdx?plusIdx:minusIdx;
         String timeStamp = nanoTimeStamp.substring(0,idx+1) +
                 nanoTimeStamp.substring(max);
-        System.out.println("conveting timeStamp: "+timeStamp+" to date");
+//        System.out.println("converting timeStamp: "+timeStamp+" to date");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         try {
             Date d = df.parse(timeStamp);
@@ -90,12 +99,6 @@ public class InfluxBolt extends BaseRichBolt {
             return 0;
         }
 
-    }
-    private int toInt(String status){
-        if(status.equals("RED"))
-            return 0;
-        else
-            return 1;
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {

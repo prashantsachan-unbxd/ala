@@ -1,14 +1,15 @@
 package result
 
 import(
-    "fmt"
-    "ex"
+    log "github.com/Sirupsen/logrus"
     )
-
+//EventLogger is an EventConsumer which simply logs each of the event received
 type EventLogger struct{
 
 }
+func (this *EventLogger)Init(){
 
-func (l *EventLogger) Consume(e ex.Event){
-    fmt.Println("logging event: ", e)    
+}
+func (this *EventLogger) Consume(e Event){
+    log.WithFields(log.Fields{"module":"EventLogger","event":e}).Info("event received") 
 }

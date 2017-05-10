@@ -2,30 +2,42 @@ package result
 
 import(
     sarama "gopkg.in/Shopify/sarama.v1"
-    "ex"
     "encoding/json"
-    "fmt"
+    log "github.com/Sirupsen/logrus"
     "time"
     )
-var brokerlist = []string{"localhost:9092"}
+// var brokerlist = []string{"localhost:9092"}
+
+var TOPIC_NAME = "monitoring"
+var producer sarama.AsyncProducer
+//KafkaForwarder is an kafka facing implementation of EventConsumer
+//it forwards each Event to Kafka
 type KafkaForwarder struct{
-    producer sarama.AsyncProducer
+    //BrokerList : list of brokers to be used for connecting to kafka
+    BrokerList []string
 
 }
-
-func (l *KafkaForwarder) Consume(e ex.Event){
-    fmt.Println("forwarding event to kafka :", e)
-    if(l.producer == nil ){
-        l.producer = newAsyncProducer(brokerlist);    
+//Init creates an async Kafka producer
+func (this *KafkaForwarder) Init(){
+    producer = newAsyncProducer(this.BrokerList)
+}
+func (this *KafkaForwarder) Consume(e Event){
+    log.WithFields(log.Fields{"module":"KafkaForwarder","event":e}).Debug(
+        "sending to kafka") 
+    if(producer == nil ){
+        log.WithFields(log.Fields{"module":"KafkaForwarder",
+            "brokers":this.BrokerList}).Fatal(
+            "nil Kafka Producer, unable to send event")
     }
     msg, err := json.Marshal(e)
     if err !=  nil{
-        fmt.Println(" erro in marsalling event to Json")
+        log.WithFields(log.Fields{"module":"KafkaForwarder","event":e,
+            "error":err}).Error("unable to unmarshal event")
         return
     }
-    l.producer.Input() <- &sarama.ProducerMessage{
-            Topic: "monitoring",
-            Key:   sarama.StringEncoder(e.Api.Url),
+    producer.Input() <- &sarama.ProducerMessage{
+            Topic: TOPIC_NAME,
+            Key:   sarama.StringEncoder(e.Srvc.Id),
             Value: sarama.StringEncoder(msg),
         }
 
@@ -43,14 +55,17 @@ func newAsyncProducer(brokerList []string) sarama.AsyncProducer {
 
     producer, err := sarama.NewAsyncProducer(brokerList, config)
     if err != nil {
-        fmt.Println("Failed to start Sarama producer:", err)
+        log.WithFields(log.Fields{"module":"KafkaForwarder","brokers":brokerList,
+            "error":err}).Fatal("Failed to start Sarama producer") 
     }
-
+    log.WithFields(log.Fields{"module":"KafkaForwarder","brokers":brokerList,
+        "config":config}).Info("Initialized Kafka producer") 
     // We will just log to STDOUT if we're not able to produce messages.
     // Note: messages will only be returned here after all retry attempts are exhausted.
     go func() {
         for err := range producer.Errors() {
-            fmt.Println("Failed to write access log entry:", err)
+            log.WithFields(log.Fields{"module":"KafkaForwarder","error":err}).Error(
+                "Failed to write access log entry") 
         }
     }()
 
