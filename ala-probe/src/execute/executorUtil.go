@@ -26,6 +26,8 @@ func fetchMetrics(reDao RuleEngineDao, services []topo.Service, out chan result.
                 log.WithFields(log.Fields{"module":"executor", "serviceId":s.Id,"clientType":c.ProbeType,
                     "clientData":c.ProbeData, "error":cErr}).Error("error instantiating client")    
                 // forward the default valued event 
+                collectAndSendMetrics(reDao, nil, c.Metrics,s,out)
+                return
             }
             pResp, pErr := client.Execute()
             if(pErr !=nil){
@@ -34,14 +36,18 @@ func fetchMetrics(reDao RuleEngineDao, services []topo.Service, out chan result.
                 // forward the default valued event
                 pResp = nil
             }
-            timestamp:= time.Now()
-            metrics := getMetricValues(reDao, pResp, c.Metrics)
-            for k,v := range metrics{
-                log.WithFields(log.Fields{"module":"executor", "serviceId":s.Id, "metric":k,"value":v}).Debug(
-                    )
-                out <- result.Event{s,timestamp, k,v.(float64)}
-            }
+            collectAndSendMetrics(reDao, pResp, c.Metrics,s,out)
         }
+    }
+}
+func collectAndSendMetrics(reDao RuleEngineDao, pResp response.ProbeResponse, 
+    metricConfs[]map[string]interface{}, service topo.Service, out chan result.Event){
+    timestamp:= time.Now()
+    metrics := getMetricValues(reDao, pResp, metricConfs)
+    for k,v := range metrics{
+        log.WithFields(log.Fields{"module":"executor", "serviceId":service.Id, "metric":k,"value":v}).Debug(
+            )
+        out <- result.Event{service,timestamp, k,v.(float64)}
     }
 }
 
