@@ -63,6 +63,7 @@ func getMetricValues(reDao RuleEngineDao, resp response.ProbeResponse, metrics[]
             vals[m1[FIELD_METRIC_NAME].(string)] = m1[FIELD_DEFAULT_VALUE]
         }
     }else{
+        respMap:= resp.AsMap()
         for _,m := range metrics{
             var defaultVal interface{}
             segment := make(map[string]interface{})
@@ -74,12 +75,14 @@ func getMetricValues(reDao RuleEngineDao, resp response.ProbeResponse, metrics[]
                 }
             }
             mName:=  m[FIELD_METRIC_NAME].(string)
-            val, reErr:= reDao.GetMetricVal(resp, segment, defaultVal)
+            val, reErr:= reDao.GetMetricVal(respMap, segment, defaultVal)
             if reErr !=nil {
                 log.WithFields(log.Fields{"module":"executor", "metric":mName, "error": reErr}).Error(
                     "error retrieving metric from ProbeResponse")
+                vals[mName] = defaultVal
+            }else{
+                vals[mName] = val
             }
-            vals[mName] = val
         }
     }
     return vals

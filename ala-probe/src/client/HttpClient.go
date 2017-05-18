@@ -53,7 +53,7 @@ func (this *HttpClient) Execute()(resp.ProbeResponse, error){
         return nil, errors.New("empty http client found")
     }
     rDump, _ := httputil.DumpRequest(&this.req, true)
-    log.WithFields(log.Fields{"module": "httpClient","request":rDump}).Info("Http Probe Request")
+    log.WithFields(log.Fields{"module": "httpClient","request":rDump}).Info("sending Http Request")
     res, err := this.client.Do(&this.req)
     if err !=nil{
         return nil,err
