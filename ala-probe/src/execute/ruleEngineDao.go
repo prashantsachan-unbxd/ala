@@ -10,7 +10,7 @@ import(
     log "github.com/Sirupsen/logrus"
     "strconv"
     "net/http/httputil"
-    // "response"
+    "response"
 )
 //RuleEngineDao is a Data Access Object to be used for interacting with RuleEngine
 // It resolves two kind of rules
@@ -119,8 +119,8 @@ func (e *RuleEngineDao) GetProbeConfigs(serviceClass string) ([]ProbeConfig, err
 //      domain =    platform.monitoring
 //      subdomain = metricCollect
 //      metricName= <metricName to be computed>
-func (e *RuleEngineDao) GetMetricVal(respMap map[string]interface{}, segment map[string]interface{}, defaultVal interface{})(interface{}, error){
-    segment[SEGMENT_FIELD_RESPONSE] = respMap
+func (e *RuleEngineDao) GetMetricVal(resp response.ProbeResponse, segment map[string]interface{}, defaultVal interface{})(interface{}, error){
+    segment[SEGMENT_FIELD_RESPONSE] = resp.AsMap()
     values,err := e.resolveToVal(segment)
     //ideally there should be exactly one rule with a specific metricName
     if err != nil{

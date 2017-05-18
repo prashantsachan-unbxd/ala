@@ -12,7 +12,7 @@ import(
 func init(){
     log.SetFormatter(&log.JSONFormatter{})
     log.SetOutput(os.Stdout)
-    log.SetLevel(log.InfoLevel)
+    log.SetLevel(log.DebugLevel)
 }
 func main(){
     var serviceDao topo.ServiceDao = &topo.FileServiceDao{"./resource/serviceConf.json"}

@@ -58,6 +58,6 @@ func (this *HttpClient) Execute()(resp.ProbeResponse, error){
     if err !=nil{
         return nil,err
     }else{
-        return & resp.HttpResponse{*res}, nil
+        return resp.NewHttpResponse(*res), nil
     }
 }
