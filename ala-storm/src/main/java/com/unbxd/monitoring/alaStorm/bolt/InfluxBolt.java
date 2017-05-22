@@ -35,15 +35,13 @@ public class InfluxBolt extends BaseRichBolt {
 
 
     public static final String FIELD_SERVICE_ID = "serviceId";
-    public static final String RET_POLICY = "default";
     private OutputCollector collector;
     String dbName;
     InfluxDB influxDB;
     ObjectMapper jsonMapper;
+    String RET_POLICY;
 
-    public InfluxBolt() {
-        jsonMapper = new ObjectMapper();
-    }
+    public InfluxBolt() {jsonMapper = new ObjectMapper();}
 
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
@@ -54,6 +52,7 @@ public class InfluxBolt extends BaseRichBolt {
         String pass = (String) map.get(ConfKeys.INFLUX_PASS);
         this.influxDB = InfluxDBFactory.connect(hostPort, user, pass, builder);
         this.dbName = (String) map.get(ConfKeys.INFLUX_DBNAME);
+        RET_POLICY = (String)map.get(ConfKeys.INFLUX_RET_POLICY);
     }
 
     public void execute(Tuple tuple) {
@@ -92,6 +91,7 @@ public class InfluxBolt extends BaseRichBolt {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         try {
             Date d = df.parse(timeStamp);
+
             return d.getTime();
         } catch (ParseException e) {
             e.printStackTrace();
