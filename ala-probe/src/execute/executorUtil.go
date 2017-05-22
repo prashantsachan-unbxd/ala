@@ -2,16 +2,67 @@ package execute
 
 import (
         log "github.com/Sirupsen/logrus"
+        "sync"
         topo "topology"
         "client"
         "response"
         "time"
         "result"
+
     )
 
 const FIELD_METRIC_NAME = "metricName"
 const FIELD_DEFAULT_VALUE = "defaultMetricValue"
 const FIELD_METRICS = "metrics"
+//fetchProbeConfigs takes a set of services & retrieves ProbeConfigs for them without repetition
+func fetchProbeConfigs(reDao RuleEngineDao, services []topo.Service)map[string][]ProbeConfig{
+    classes := uniqueClasses(services)
+    log.WithFields(log.Fields{"module":"executor","stage":"fetch probeConfig",
+    "serviceClasses": classes}).Error("ready to fetch probeConfigs")
+    configs:= make(map[string][]ProbeConfig)
+    var wg = sync.WaitGroup{}
+    for _,class := range classes{
+        wg.Add(1)
+        go func(){
+            defer wg.Done()
+            pConfs,err := reDao.GetProbeConfigs(class)
+            if err !=nil {
+                log.WithFields(log.Fields{"module":"executor","stage":"probeConfig",
+                 "error":err, "serviceClass": class}).Error(" unable to fetch ProbeConfig")
+            }else{
+                log.Debug("fetching ProbeConfs for serviceClass"+class)
+                configs[class] = pConfs
+            }
+        }()
+    }
+    wg.Wait()
+    return configs
+}
+func uniqueClasses(services []topo.Service)[]string{
+    classes := make([]string,0)
+    for _,s:= range services{
+        for _,c := range s.Class{
+            classes = append(classes, c)
+        }
+        
+    }
+    return unique(classes)
+}
+
+func unique(original[]string)[]string{
+    m:= make(map[string]bool)
+    for _,v := range original{
+        if ! m[v]{
+            m[v] = true
+        }
+    }
+    keys := make([]string, 0, len(m))
+    for v,_ := range m{
+        keys = append(keys,v)
+    }
+    return keys
+}
+
 //fetchMetrics computes all the metrics for all the services & send an event for each of them to the out channel
 func fetchMetrics(reDao RuleEngineDao, services []topo.Service, out chan result.Event){
     //fetch metrics for each service
