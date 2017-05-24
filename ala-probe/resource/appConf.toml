@@ -1,0 +1,19 @@
+
+# "debug", "info", "warning", "error", "fatal", "panic"
+log_level = "debug"
+
+[execute]
+	# interval in seconds between each batch
+	# valid units "ns", "us" (or "µs"), "ms", "s", "m", "h"
+	batch_interval = "5s"
+	path_service_conf = "./resource/serviceConf.json"
+
+[ruleEngine]
+	host = "http://ec2-54-173-96-124.compute-1.amazonaws.com"
+	port = 8081
+	user = ""
+	pass = ""
+
+[kafka]
+	brokers_hostport = ["localhost:9092"]
+	
