@@ -16,4 +16,7 @@ log_level = "debug"
 
 [kafka]
 	brokers_hostport = ["localhost:9092"]
+
+[zk]
+	servers_hostport = ["localhost:2181"]
 	
