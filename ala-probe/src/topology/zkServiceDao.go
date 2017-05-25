@@ -86,3 +86,24 @@ func (this *ZkServiceDao) DeleteService(id string) error{
 	return zkErr
 	
 }
+func (this *ZkServiceDao)GetService(id string)(Service,error){
+	path := RootNode+"/"+ id
+	exists,_,zkErr:= this.Conn.Exists(path)
+	if zkErr!=nil{
+		return Service{},zkErr
+	}else if  !exists{
+		return Service{},errors.New("No service with id: "+id)
+	}else{
+		data,_,err:= this.Conn.Get(path)
+		if err!=nil{
+			return Service{}, err
+		}
+		var s Service
+		jErr:= json.Unmarshal(data, &s)
+		if jErr !=nil{
+			return Service{}, jErr
+		}else{
+			return s,nil
+		}
+	}
+}
