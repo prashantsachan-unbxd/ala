@@ -9,6 +9,9 @@ import(
     topo "topology"
     "execute"
     "result"
+    mux "github.com/gorilla/mux"
+    "net/http"
+    "ui"
 )
 var confFile = "resource/appConf"
 func init(){
@@ -85,8 +88,24 @@ func main(){
     // dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}}}
     log.WithFields(log.Fields{"module": "main",}).Info("starting dispatcher")
     dispatcher.StartDispatch(out)
-    //wait forever
-    select{}
+    // start the ui server 
+
+    controllers:=[]ui.ReqController{
+        &ui.ServiceController{ serviceDao},
+    }
+    r:= mux.NewRouter()
+    for _,h:= range controllers{
+        h.Register(r)
+    }
+    fmt.Println("listening on port 8080")
+    srv := &http.Server{
+        Handler:      r,
+        Addr:         ":8080",
+        WriteTimeout: 15 * time.Second,
+        ReadTimeout:  15 * time.Second,
+    }
+    fmt.Println(srv.ListenAndServe())
+
     
     // exec.StopExec()
     
