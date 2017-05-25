@@ -9,7 +9,6 @@ import(
     topo "topology"
     "execute"
     "result"
-
 )
 var confFile = "resource/appConf"
 func init(){
@@ -54,7 +53,13 @@ func main(){
         log.WithFields(log.Fields{"module":"main","confFields":m,"error":"missing mandatory confs"}).Panic("shutting down")
 
     }
-    var serviceDao topo.ServiceDao = &topo.FileServiceDao{viper.GetString(conf_service_path)}
+    // var serviceDao topo.ServiceDao = &topo.FileServiceDao{viper.GetString(conf_service_path)}
+    zkConn, zkErr:= ConnectZk()
+    if zkErr !=nil{
+        log.WithFields(log.Fields{"module":"main","error":zkErr}).Fatal("unable to connect to ZK")
+        return
+    }
+    var serviceDao topo.ServiceDao = &topo.ZkServiceDao{zkConn}
     serviceDao.Init()
     var REDao execute.RuleEngineDao = execute.RuleEngineDao{viper.GetString(conf_re_host),
      viper.GetInt(conf_re_port), viper.GetString(conf_re_user),viper.GetString(conf_re_pass)}
