@@ -6,6 +6,8 @@ import (
 //ProbeConfig has configuration related to Probing & collecting metric for a service
 // it basically 'answers how to probe a service?'
 type ProbeConfig struct{
+    // unique Id to identify
+    Id string       `json:"id"`
     //ProbeType tells which ProbeClient to use
     //ProbeClientFactory decides the probeClient by matching this
     ProbeType string `json:"probeType"`
@@ -24,6 +26,7 @@ type ProbeConfig struct{
 }
 //an example of ProbeConfig is as follows: 
 // {
+//      "id":"http-tomcat"
 //      "probeType":"HTTP",
 //      "probeData":{
 //          "connTimeout":"3",
