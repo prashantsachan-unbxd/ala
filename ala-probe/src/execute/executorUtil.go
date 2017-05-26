@@ -8,6 +8,7 @@ import (
         "response"
         "time"
         "result"
+        "execute/probe"
 
     )
 
@@ -15,11 +16,11 @@ const FIELD_METRIC_NAME = "metricName"
 const FIELD_DEFAULT_VALUE = "defaultMetricValue"
 const FIELD_METRICS = "metrics"
 //fetchProbeConfigs takes a set of services & retrieves ProbeConfigs for them without repetition
-func fetchProbeConfigs(reDao RuleEngineDao, services []topo.Service)map[string][]ProbeConfig{
+func fetchProbeConfigs(reDao RuleEngineDao, services []topo.Service)map[string][]probe.ProbeConfig{
     classes := uniqueClasses(services)
     log.WithFields(log.Fields{"module":"executor","stage":"fetch probeConfig",
     "serviceClasses": classes}).Error("ready to fetch probeConfigs")
-    configs:= make(map[string][]ProbeConfig)
+    configs:= make(map[string][]probe.ProbeConfig)
     var wg = sync.WaitGroup{}
     for _,class := range classes{
         wg.Add(1)
@@ -146,10 +147,10 @@ func getMetricValues(reDao RuleEngineDao, resp response.ProbeResponse, metrics[]
     return vals
 }
 //getMetricValues interacts with RuleEngine & return list of Probeconfigs for a particular service
-func fetchProbeConfig(service topo.Service, reDao RuleEngineDao)[]ProbeConfig{
+func fetchProbeConfig(service topo.Service, reDao RuleEngineDao)[]probe.ProbeConfig{
     log.WithFields(log.Fields{"module":"executor", "serviceId":service.Id, "class":service.Class}).Debug(
         "fetching probeConfigs for service: ")
-    var confs []ProbeConfig
+    var confs []probe.ProbeConfig
     // send one request for each of the serviceClass
     for _,c := range service.Class{
         classConf,err:= reDao.GetProbeConfigs(c)

@@ -11,6 +11,7 @@ import(
     "strconv"
     "net/http/httputil"
     "response"
+    "execute/probe"
 )
 //RuleEngineDao is a Data Access Object to be used for interacting with RuleEngine
 // It resolves two kind of rules
@@ -90,7 +91,7 @@ func (e *RuleEngineDao) resolveToVal(segment map[string]interface{}) (map[string
 }
 
 // returns List of ProbeConfigs for given serviceClass 
-func (e *RuleEngineDao) GetProbeConfigs(serviceClass string) ([]ProbeConfig, error){
+func (e *RuleEngineDao) GetProbeConfigs(serviceClass string) ([]probe.ProbeConfig, error){
     segment := map[string]interface{}{
         SEGMENT_FIELD_DOMAIN: SEGMENT_VALUE_DOMAIN,
         SEGMENT_FIELD_SUBDOMAIN: SEGMENT_VALUE_SUBDOMAIN,
@@ -100,9 +101,9 @@ func (e *RuleEngineDao) GetProbeConfigs(serviceClass string) ([]ProbeConfig, err
     if reErr !=nil{
         return nil, reErr
     }
-    var probeConfs []ProbeConfig
+    var probeConfs []probe.ProbeConfig
     for _,v := range ruleVals{
-        var c ProbeConfig
+        var c probe.ProbeConfig
         jsonErr:= json.Unmarshal([]byte(v.(string)),&c)
         if jsonErr !=nil{
             log.WithFields(log.Fields{"module":"reDao","class":serviceClass,
