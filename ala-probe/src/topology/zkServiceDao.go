@@ -5,8 +5,9 @@ import(
 	"github.com/samuel/go-zookeeper/zk"
     log "github.com/Sirupsen/logrus"
     "encoding/json"
+    zkUtil "util/zk"
 )
-const RootNode = "/topology"
+const RootNode = "/metricCollect/services"
 var flags = int32(0)
 var acl = zk.WorldACL(zk.PermAll)
 type ZkServiceDao struct{
@@ -15,21 +16,9 @@ type ZkServiceDao struct{
 
 func (this *ZkServiceDao) Init(){
 	// create if the root path doesn't exist
-	exists,_,err:= this.Conn.Exists(RootNode)
-	if err !=nil{
-		log.WithFields(log.Fields{"module":"zkServiceDao","action":"exists",
-			"path":RootNode,"error":err}).Error("unable to determine existance of root, assuming it exists")
-	}else if !exists{
-		path,err := this.Conn.Create(RootNode, []byte("[metricCollection]root node for topology"),flags, acl)
-		if err == nil{
-			log.WithFields(log.Fields{"module":"zkServiceDao","action":"create",
-				"path":RootNode}).Info("created RootNode with path: "+path)
-		}else{
-			log.WithFields(log.Fields{"module":"zkServiceDao","action":"create",
-				"path":RootNode, "error":err}).Info("unable to create RootNode")
-		}
-
-	}
+	zkErr:= zkUtil.CreatePath(this.Conn, RootNode) 
+	log.WithFields(log.Fields{"module":"zkServiceDao","action":"create",
+				"path":RootNode, "error":zkErr}).Info("unable to create RootNode")
 }
 // Fetches to get all The services, returns the first 
 func (this *ZkServiceDao) GetAllServices()([]Service,error){
