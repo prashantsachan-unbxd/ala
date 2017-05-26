@@ -16,7 +16,7 @@ type ZkServiceDao struct{
 
 func (this *ZkServiceDao) Init(){
 	// create if the root path doesn't exist
-	zkErr:= zkUtil.CreatePath(this.Conn, RootNode) 
+	zkErr:= zkUtil.CreatePath(this.Conn, RootNode,[]byte("Root Node for services") )
 	log.WithFields(log.Fields{"module":"zkServiceDao","action":"create",
 				"path":RootNode, "error":zkErr}).Info("unable to create RootNode")
 }
@@ -41,7 +41,7 @@ func (this *ZkServiceDao) GetAllServices()([]Service,error){
 				jErr:= json.Unmarshal(data, &s)
 				if jErr !=nil{
 					log.WithFields(log.Fields{"module":"zkServiceDao","action":"getAll",
-						"data":string(data),"error":zkErr}).Error("error parsing to Service")
+						"data":string(data),"error":jErr}).Error("error parsing to Service")
 					failedIds = append(failedIds, id)	
 				}else{
 					services = append(services, s)

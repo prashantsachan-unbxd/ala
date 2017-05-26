@@ -11,7 +11,7 @@ var flags = int32(0)
 var acl = zk.WorldACL(zk.PermAll)
 //createDirPath creates all the znodes for the given path
 // equivalent to bash command `mkdir -p`
-func CreatePath(Conn *zk.Conn, path string)error{
+func CreatePath(Conn *zk.Conn, path string, tailData []byte)error{
 	first,size:= utf8.DecodeRuneInString(path)
 	if string(first) == separator{
 		path = path[size:]
@@ -23,8 +23,15 @@ func CreatePath(Conn *zk.Conn, path string)error{
 		if err!=nil{
 			return err
 		}else if !exists{
-			_,cErr:= Conn.Create(subPath, make([]byte,0), flags, acl)
-			return cErr
+			if i == len(parts)-1{
+				_,cErr:= Conn.Create(subPath, tailData, flags, acl)	
+				return cErr
+			}else{
+				_,cErr:= Conn.Create(subPath, make([]byte,0), flags, acl)	
+				return cErr
+			}
+			
+			
 		}
 	}
 	return nil
