@@ -30,9 +30,9 @@ public class Topology {
         config = conf;
         if(configFile == null){
             ClassLoader classLoader = getClass().getClassLoader();
-            URL filename = classLoader.getResource("/application.properties");
+            URL filename = classLoader.getResource("application.properties");
             System.out.print("props file: "+filename);
-            properties.load(classLoader.getResourceAsStream("/application.properties"));
+            properties.load(classLoader.getResourceAsStream("application.properties"));
         }else {
             properties.load(new FileInputStream(configFile));
         }

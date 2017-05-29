@@ -2,43 +2,103 @@ package execute
 
 import (
         log "github.com/Sirupsen/logrus"
+        "sync"
         topo "topology"
         "client"
         "response"
         "time"
         "result"
+        "execute/probe"
+
     )
 
 const FIELD_METRIC_NAME = "metricName"
 const FIELD_DEFAULT_VALUE = "defaultMetricValue"
 const FIELD_METRICS = "metrics"
+//fetchProbeConfigs takes a set of services & retrieves ProbeConfigs for them without repetition
+func fetchProbeConfigs(pcDao probe.ProbeConfigDao, services []topo.Service)map[string][]probe.ProbeConfig{
+    classes := uniqueClasses(services)
+    log.WithFields(log.Fields{"module":"executor","stage":"fetch probeConfig",
+    "serviceClasses": classes}).Error("ready to fetch probeConfigs")
+    configs:= make(map[string][]probe.ProbeConfig)
+    var wg = sync.WaitGroup{}
+    for _,class := range classes{
+        wg.Add(1)
+        go func(){
+            defer wg.Done()
+            pConfs,err := pcDao.GetAllProbeConfs(class)
+            if err !=nil {
+                log.WithFields(log.Fields{"module":"executor","stage":"probeConfig",
+                 "error":err, "serviceClass": class}).Error(" unable to fetch ProbeConfig")
+            }else{
+                log.Debug("fetching ProbeConfs for serviceClass"+class)
+                configs[class] = pConfs
+            }
+        }()
+    }
+    wg.Wait()
+    return configs
+}
+func uniqueClasses(services []topo.Service)[]string{
+    classes := make([]string,0)
+    for _,s:= range services{
+        for _,c := range s.Class{
+            classes = append(classes, c)
+        }
+        
+    }
+    return unique(classes)
+}
+
+func unique(original[]string)[]string{
+    m:= make(map[string]bool)
+    for _,v := range original{
+        if ! m[v]{
+            m[v] = true
+        }
+    }
+    keys := make([]string, 0, len(m))
+    for v,_ := range m{
+        keys = append(keys,v)
+    }
+    return keys
+}
+
 //fetchMetrics computes all the metrics for all the services & send an event for each of them to the out channel
-func fetchMetrics(reDao RuleEngineDao, services []topo.Service, out chan result.Event){
+func fetchMetrics(reDao RuleEngineDao, pcDao probe.ProbeConfigDao, services []topo.Service, out chan result.Event){
+    probeConfMap := fetchProbeConfigs(pcDao, services)
+    log.WithFields(log.Fields{"module":"executor","stage":"probeConfig", 
+        "value":probeConfMap}).Debug("fetched ProbeConfigs")
     //fetch metrics for each service
     for _,s := range services{
-        // get the probeConfigs from RuleEngine
-        confs:= fetchProbeConfig(s,reDao)
-        log.WithFields(log.Fields{"module":"executor","serviceId":s.Id,"stage":"probeConfig"}).Debug(
-            "fetched ProbeConfig")
-        for _,c := range confs{
-            //for each probeConfig, create a client & send probeRequest 
-            log.WithFields(log.Fields{"module":"executor", "probeConfig":c}).Debug()
-            client, cErr:= client.GetClient(c.ProbeType, c.ProbeData, s)
-            if(cErr!=nil){
-                log.WithFields(log.Fields{"module":"executor", "serviceId":s.Id,"clientType":c.ProbeType,
-                    "clientData":c.ProbeData, "error":cErr}).Error("error instantiating client")    
-                // forward the default valued event 
-                collectAndSendMetrics(reDao, nil, c.Metrics,s,out)
-                return
+        for _,class := range s.Class{
+            confs,ok := probeConfMap[class]
+            if !ok{
+                log.WithFields(log.Fields{"module":"executor","serviceId":s.Id,
+                    "serviceClass":class}).Debug("no ProbeConf for serviceClass")
+            }else{
+                for _,c:= range confs {
+                    go func(){
+                        //for each probeConfig, create a client & send probeRequest 
+                        client, cErr:= client.GetClient(c.ProbeType, c.ProbeData, s)
+                        if(cErr!=nil){
+                            log.WithFields(log.Fields{"module":"executor", "serviceId":s.Id,"clientType":c.ProbeType,
+                                "clientData":c.ProbeData, "error":cErr}).Error("error instantiating client")    
+                            // forward the default valued event 
+                            collectAndSendMetrics(reDao, nil, c.Metrics,s,out)
+                            return
+                        }
+                        pResp, pErr := client.Execute()
+                        if(pErr !=nil){
+                            log.WithFields(log.Fields{"module":"executor", "serviceId":s.Id, 
+                                "clientType":c.ProbeType, "error":pErr}).Error("error in probing")
+                            // forward the default valued event
+                            pResp = nil
+                        }
+                        collectAndSendMetrics(reDao, pResp, c.Metrics,s,out)
+                    }()
+                }
             }
-            pResp, pErr := client.Execute()
-            if(pErr !=nil){
-                log.WithFields(log.Fields{"module":"executor", "serviceId":s.Id, 
-                    "clientType":c.ProbeType, "error":pErr}).Error("error in probing")
-                // forward the default valued event
-                pResp = nil
-            }
-            collectAndSendMetrics(reDao, pResp, c.Metrics,s,out)
         }
     }
 }
@@ -78,17 +138,19 @@ func getMetricValues(reDao RuleEngineDao, resp response.ProbeResponse, metrics[]
             if reErr !=nil {
                 log.WithFields(log.Fields{"module":"executor", "metric":mName, "error": reErr}).Error(
                     "error retrieving metric from ProbeResponse")
+                vals[mName] = defaultVal
+            }else{
+                vals[mName] = val
             }
-            vals[mName] = val
         }
     }
     return vals
 }
 //getMetricValues interacts with RuleEngine & return list of Probeconfigs for a particular service
-func fetchProbeConfig(service topo.Service, reDao RuleEngineDao)[]ProbeConfig{
+func fetchProbeConfig(service topo.Service, reDao RuleEngineDao)[]probe.ProbeConfig{
     log.WithFields(log.Fields{"module":"executor", "serviceId":service.Id, "class":service.Class}).Debug(
         "fetching probeConfigs for service: ")
-    var confs []ProbeConfig
+    var confs []probe.ProbeConfig
     // send one request for each of the serviceClass
     for _,c := range service.Class{
         classConf,err:= reDao.GetProbeConfigs(c)

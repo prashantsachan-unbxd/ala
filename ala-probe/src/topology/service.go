@@ -19,4 +19,7 @@ type Service struct{
     Metadata map[string]interface{} `json:"metadata"`
 }
 
+func (this Service)IsValid()bool{
+    return !(this.Id ==""||this.Host =="" || this.Port==0 || len(this.Class) ==0)
+}
 

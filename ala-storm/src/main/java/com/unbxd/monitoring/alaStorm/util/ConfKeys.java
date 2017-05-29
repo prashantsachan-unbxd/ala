@@ -24,5 +24,6 @@ public class ConfKeys {
     public static final String INFLUX_DBNAME = "influx.dbname";
     public static final String INFLUX_USER  = "influx.user";
     public static final String INFLUX_PASS  = "influx.pass";
+    public static final String INFLUX_RET_POLICY = "influx.retention_policy";
 
 }

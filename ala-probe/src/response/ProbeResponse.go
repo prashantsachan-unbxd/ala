@@ -7,5 +7,8 @@ type ProbeResponse interface{
     GetType()string
     //AsMap converts the response into a Map.
     //This map could be marshalled & sent (to RuleEngine) for computing metrics
+    // Also, it is the individual implementation's responsibility to handle multiple
+    // calls of this method. Users should be able to call this method multiple times 
+    // getting the same value each time
     AsMap()map[string]interface{}
 }

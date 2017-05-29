@@ -1,8 +1,9 @@
 [
     {
         "id":"67355A76-5669-4F6C-9F4A-A03EE41BB292",
-        "host":"http://searchstaging.cloudapp.net",
+        "host":"http://54.210.4.164",
         "port":8086,
-        "class":["SOLRHTTPSTATUSCHECK"]
+        "class":[ "SOLRHTTPSTATUSCHECK","EXPRESS_NUMPRODUCTS"]
     }
+
 ]

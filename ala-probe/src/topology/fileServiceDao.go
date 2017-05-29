@@ -77,3 +77,11 @@ func writeToFile(configs []Service, filePath string) error{
     ioutil.WriteFile(filePath, b, 0644)
     return nil
 }   
+func (this *FileServiceDao)GetService(id string)(Service,error){
+    for _,v := range services{
+        if v.Id == id{
+            return v,nil
+        }
+    }
+    return Service{},errors.New("no service with ID: "+id)
+}

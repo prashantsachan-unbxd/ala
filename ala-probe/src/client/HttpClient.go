@@ -7,7 +7,7 @@ import (
     log "github.com/Sirupsen/logrus"
     resp "response"
     topo "topology"
-    "net/http/httputil"
+    // "net/http/httputil"
     "strconv"
     )
 const HTTP_CONFIG_PATH = "path"
@@ -52,12 +52,12 @@ func (this *HttpClient) Execute()(resp.ProbeResponse, error){
     if (this == Empty){
         return nil, errors.New("empty http client found")
     }
-    rDump, _ := httputil.DumpRequest(&this.req, true)
-    log.WithFields(log.Fields{"module": "httpClient","request":rDump}).Info("Http Probe Request")
+    // rDump, _ := httputil.DumpRequest(&this.req, true)
+    log.WithFields(log.Fields{"module": "httpClient","url":this.req.URL}).Info("sending Http Request")
     res, err := this.client.Do(&this.req)
     if err !=nil{
         return nil,err
     }else{
-        return & resp.HttpResponse{*res}, nil
+        return resp.NewHttpResponse(*res), nil
     }
 }

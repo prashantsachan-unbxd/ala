@@ -4,6 +4,7 @@ import(
     log "github.com/Sirupsen/logrus"
     topo "topology"
     "result"
+    "execute/probe"
     )
 //IntervalExec runs at a specific interval & computes metric Computation for all the services available
 type IntervalExec struct{
@@ -13,6 +14,8 @@ type IntervalExec struct{
     ServiceStore topo.ServiceDao
     //REDao : RuleEngineDao to get ProbeConfiguration & compute metric
     REDao RuleEngineDao
+    //PCDao : to retrieve probeconfigs for a serviceClass
+    PCDao probe.ProbeConfigDao
     //channel to stop execution
     done chan struct{}
 }
@@ -35,12 +38,11 @@ func (e *IntervalExec) StartExec()<-chan result.Event   {
                     services, err := e.ServiceStore.GetAllServices()
                     log.WithFields(log.Fields{"module":"executor","timestamp":t,
                         "numServices":len(services)}).Info("launching executionbatch")
-                    if err == nil{
-                        go fetchMetrics(e.REDao, services, out)
-                    }else{
+                    if err != nil{
                         log.WithFields(log.Fields{"module":"executor","error": err}).Fatal(
                             "failed to launch batch, error in getting services")
                     }
+                    go fetchMetrics(e.REDao, e.PCDao, services, out)
 
                 }
             case <-e.done :

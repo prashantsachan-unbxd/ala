@@ -13,5 +13,8 @@ type ServiceDao  interface{
     AddService(s Service)error
     //DeleteService deletes a service from the existing list
     DeleteService(id string) error
+    // Retrieves a service by id
+    // should return non-nil error if id passed doesn't match with any service
+   	GetService(id string)(Service,error)
 }
 
