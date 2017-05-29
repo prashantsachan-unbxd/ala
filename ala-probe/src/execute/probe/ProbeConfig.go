@@ -24,6 +24,10 @@ type ProbeConfig struct{
     Metrics []map[string]interface{} `json:"metrics"`
 
 }
+
+func (this *ProbeConfig) IsValid()bool{
+    return !(this.Id !="" && this.ProbeType== ""|| this.Metrics==nil ||len(this.Metrics)==0)
+}
 //an example of ProbeConfig is as follows: 
 // {
 //      "id":"http-tomcat"

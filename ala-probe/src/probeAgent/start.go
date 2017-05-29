@@ -8,6 +8,7 @@ import(
     "os"
     topo "topology"
     "execute"
+    "execute/probe"
     "result"
     mux "github.com/gorilla/mux"
     "net/http"
@@ -62,6 +63,9 @@ func main(){
         log.WithFields(log.Fields{"module":"main","error":zkErr}).Fatal("unable to connect to ZK")
         return
     }
+    var pcDao probe.ProbeConfigDao
+    pcDao = &probe.ZkPCDao{zkConn}
+    pcDao.Init()
     var serviceDao topo.ServiceDao = &topo.ZkServiceDao{zkConn}
     serviceDao.Init()
     var REDao execute.RuleEngineDao = execute.RuleEngineDao{viper.GetString(conf_re_host),
@@ -79,7 +83,7 @@ func main(){
         }
         
     }
-    exec  = & execute.IntervalExec{Interval:batchInterval, ServiceStore:serviceDao, REDao: REDao}
+    exec  = & execute.IntervalExec{Interval:batchInterval, ServiceStore:serviceDao, REDao: REDao, PCDao:pcDao}
     log.WithFields(log.Fields{"module": "main",}).Info("starting executor")    
     
     out:= exec.StartExec()
@@ -92,6 +96,7 @@ func main(){
 
     controllers:=[]ui.ReqController{
         &ui.ServiceController{ serviceDao},
+        &ui.ProbeConfController{pcDao},
     }
     r:= mux.NewRouter()
     for _,h:= range controllers{

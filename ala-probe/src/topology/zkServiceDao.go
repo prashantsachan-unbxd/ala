@@ -17,8 +17,11 @@ type ZkServiceDao struct{
 func (this *ZkServiceDao) Init(){
 	// create if the root path doesn't exist
 	zkErr:= zkUtil.CreatePath(this.Conn, RootNode,[]byte("Root Node for services") )
-	log.WithFields(log.Fields{"module":"zkServiceDao","action":"create",
-				"path":RootNode, "error":zkErr}).Info("unable to create RootNode")
+	if(zkErr!=nil){
+		log.WithFields(log.Fields{"module":"zkServiceDao","action":"create",
+			"path":RootNode, "error":zkErr}).Info("unable to create RootNode")
+	}
+		
 }
 // Fetches to get all The services, returns the first 
 func (this *ZkServiceDao) GetAllServices()([]Service,error){

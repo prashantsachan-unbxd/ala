@@ -16,7 +16,7 @@ const FIELD_METRIC_NAME = "metricName"
 const FIELD_DEFAULT_VALUE = "defaultMetricValue"
 const FIELD_METRICS = "metrics"
 //fetchProbeConfigs takes a set of services & retrieves ProbeConfigs for them without repetition
-func fetchProbeConfigs(reDao RuleEngineDao, services []topo.Service)map[string][]probe.ProbeConfig{
+func fetchProbeConfigs(pcDao probe.ProbeConfigDao, services []topo.Service)map[string][]probe.ProbeConfig{
     classes := uniqueClasses(services)
     log.WithFields(log.Fields{"module":"executor","stage":"fetch probeConfig",
     "serviceClasses": classes}).Error("ready to fetch probeConfigs")
@@ -26,7 +26,7 @@ func fetchProbeConfigs(reDao RuleEngineDao, services []topo.Service)map[string][
         wg.Add(1)
         go func(){
             defer wg.Done()
-            pConfs,err := reDao.GetProbeConfigs(class)
+            pConfs,err := pcDao.GetAllProbeConfs(class)
             if err !=nil {
                 log.WithFields(log.Fields{"module":"executor","stage":"probeConfig",
                  "error":err, "serviceClass": class}).Error(" unable to fetch ProbeConfig")
@@ -65,8 +65,8 @@ func unique(original[]string)[]string{
 }
 
 //fetchMetrics computes all the metrics for all the services & send an event for each of them to the out channel
-func fetchMetrics(reDao RuleEngineDao, services []topo.Service, out chan result.Event){
-    probeConfMap := fetchProbeConfigs(reDao, services)
+func fetchMetrics(reDao RuleEngineDao, pcDao probe.ProbeConfigDao, services []topo.Service, out chan result.Event){
+    probeConfMap := fetchProbeConfigs(pcDao, services)
     log.WithFields(log.Fields{"module":"executor","stage":"probeConfig", 
         "value":probeConfMap}).Debug("fetched ProbeConfigs")
     //fetch metrics for each service

@@ -7,7 +7,7 @@ import(
     "encoding/json"
     zkUtil "util/zk"
 )
-const rootNode = "/metricCollect/services"
+const rootNode = "/metricCollect/probeConfigs"
 var flags = int32(0)
 var acl = zk.WorldACL(zk.PermAll)
 type ZkPCDao struct{
@@ -17,8 +17,11 @@ type ZkPCDao struct{
 func (this *ZkPCDao)Init(){
 	// create if the root path doesn't exist
 	zkErr:= zkUtil.CreatePath(this.Conn, rootNode, []byte("root for all ProbeConfigs") )
-	log.WithFields(log.Fields{"module":"ZkPCDao","action":"create",
+	if(zkErr !=nil){
+		log.WithFields(log.Fields{"module":"ZkPCDao","action":"create",
 			"path":rootNode, "error":zkErr}).Info("unable to create rootNode")
+	}
+		
 }
 
 //AddService Adds a probeConfig to the existing list

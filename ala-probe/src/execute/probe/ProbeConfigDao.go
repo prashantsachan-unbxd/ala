@@ -13,6 +13,7 @@ type ProbeConfigDao interface{
     GetAllClasses()([]string, error)
     
     //GetAllServices returns list of Services
+    // This method should not fail on error, rather should continue
     GetAllProbeConfs(serviceClass string)([]ProbeConfig,error)
 
     // Retrieves a service by id
