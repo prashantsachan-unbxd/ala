@@ -1,14 +1,14 @@
 package com.unbxd.monitoring.alaStorm.bolt;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
-import backtype.storm.tuple.Tuple;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unbxd.monitoring.alaStorm.util.ConfKeys;
 import okhttp3.OkHttpClient;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.storm.task.OutputCollector;
+import org.apache.storm.task.TopologyContext;
+import org.apache.storm.topology.OutputFieldsDeclarer;
+import org.apache.storm.topology.base.BaseRichBolt;
+import org.apache.storm.tuple.Tuple;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Point;
@@ -106,9 +106,12 @@ public class InfluxBolt extends BaseRichBolt {
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
 
     }
+
+
     @Override
     public void cleanup(){
         influxDB.close();
         super.cleanup();
     }
+
 }
