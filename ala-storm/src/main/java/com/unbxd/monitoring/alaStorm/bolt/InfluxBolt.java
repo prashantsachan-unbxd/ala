@@ -1,14 +1,14 @@
 package com.unbxd.monitoring.alaStorm.bolt;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
-import backtype.storm.tuple.Tuple;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unbxd.monitoring.alaStorm.util.ConfKeys;
 import okhttp3.OkHttpClient;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.storm.task.OutputCollector;
+import org.apache.storm.task.TopologyContext;
+import org.apache.storm.topology.OutputFieldsDeclarer;
+import org.apache.storm.topology.base.BaseRichBolt;
+import org.apache.storm.tuple.Tuple;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.Point;
@@ -60,8 +60,9 @@ public class InfluxBolt extends BaseRichBolt {
         System.out.println("received : " + val);
         try {
             Map<String, Object> data = jsonMapper.readValue(val, Map.class);
-//            Map<String, String> apiData = (Map<String, String>) data.get("Api");
-            long t = toLong((String) data.get("timestamp"));
+            String nanoTS  =(String) data.get("timestamp");
+            String milliTS = milliTimeStamp(nanoTS);
+            long t = toLong(milliTS);
             String metricName = (String) data.get(MSG_FIELD_METRIC_NAME);
             Point p = Point.measurement(metricName)
                     .time(t, TimeUnit.MILLISECONDS)
@@ -80,18 +81,10 @@ public class InfluxBolt extends BaseRichBolt {
 
     }
 
-    private long toLong(String nanoTimeStamp) {
-        int idx = nanoTimeStamp.indexOf('.')+3;
-        int plusIdx = nanoTimeStamp.indexOf('+');
-        int minusIdx = nanoTimeStamp.indexOf('-');
-        int max = plusIdx>minusIdx?plusIdx:minusIdx;
-        String timeStamp = nanoTimeStamp.substring(0,idx+1) +
-                nanoTimeStamp.substring(max);
-//        System.out.println("converting timeStamp: "+timeStamp+" to date");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+    private long toLong(String milliTimeStamp) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         try {
-            Date d = df.parse(timeStamp);
-
+            Date d = df.parse(milliTimeStamp);
             return d.getTime();
         } catch (ParseException e) {
             e.printStackTrace();
@@ -100,13 +93,25 @@ public class InfluxBolt extends BaseRichBolt {
         }
 
     }
+    private String milliTimeStamp(String nanoTimeStamp){
+        int idx = nanoTimeStamp.indexOf('.')+3;
+        int plusIdx = nanoTimeStamp.indexOf('+');
+        int minusIdx = nanoTimeStamp.indexOf('-');
+        int max = plusIdx>minusIdx?plusIdx:minusIdx;
+        String timeStamp = nanoTimeStamp.substring(0,idx+1) +
+                nanoTimeStamp.substring(max);
+        return timeStamp;
+    }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
 
     }
+
+
     @Override
     public void cleanup(){
         influxDB.close();
         super.cleanup();
     }
+
 }

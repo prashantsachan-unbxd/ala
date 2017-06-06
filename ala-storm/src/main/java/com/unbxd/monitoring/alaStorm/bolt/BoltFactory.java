@@ -1,7 +1,7 @@
 package com.unbxd.monitoring.alaStorm.bolt;
 
-import backtype.storm.Config;
 import com.unbxd.monitoring.alaStorm.util.ConfKeys;
+import org.apache.storm.Config;
 
 import java.util.Properties;
 

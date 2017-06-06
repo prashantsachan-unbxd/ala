@@ -22,9 +22,9 @@ func fetchProbeConfigs(pcDao probe.ProbeConfigDao, services []topo.Service)map[s
     "serviceClasses": classes}).Error("ready to fetch probeConfigs")
     configs:= make(map[string][]probe.ProbeConfig)
     var wg = sync.WaitGroup{}
-    for _,class := range classes{
+    for _,cls := range classes{
         wg.Add(1)
-        go func(){
+        go func(class string){
             defer wg.Done()
             pConfs,err := pcDao.GetAllProbeConfs(class)
             if err !=nil {
@@ -34,7 +34,7 @@ func fetchProbeConfigs(pcDao probe.ProbeConfigDao, services []topo.Service)map[s
                 log.Debug("fetching ProbeConfs for serviceClass"+class)
                 configs[class] = pConfs
             }
-        }()
+        }(cls)
     }
     wg.Wait()
     return configs
@@ -70,33 +70,34 @@ func fetchMetrics(reDao RuleEngineDao, pcDao probe.ProbeConfigDao, services []to
     log.WithFields(log.Fields{"module":"executor","stage":"probeConfig", 
         "value":probeConfMap}).Debug("fetched ProbeConfigs")
     //fetch metrics for each service
-    for _,s := range services{
-        for _,class := range s.Class{
-            confs,ok := probeConfMap[class]
+    for _,serv := range services{
+        for _,servClass := range serv.Class{
+            confs,ok := probeConfMap[servClass]
             if !ok{
-                log.WithFields(log.Fields{"module":"executor","serviceId":s.Id,
-                    "serviceClass":class}).Debug("no ProbeConf for serviceClass")
+                log.WithFields(log.Fields{"module":"executor","serviceId":serv.Id,
+                    "serviceClass":servClass}).Debug("no ProbeConf for serviceClass")
             }else{
                 for _,c:= range confs {
-                    go func(){
+                    go func(pc probe.ProbeConfig, s topo.Service){
                         //for each probeConfig, create a client & send probeRequest 
-                        client, cErr:= client.GetClient(c.ProbeType, c.ProbeData, s)
+                        log.WithFields(log.Fields{"module":"executor", "probeConf":pc}).Debug("intantiating Client")
+                        client, cErr:= client.GetClient(pc.ProbeType, pc.ProbeData, s)
                         if(cErr!=nil){
-                            log.WithFields(log.Fields{"module":"executor", "serviceId":s.Id,"clientType":c.ProbeType,
-                                "clientData":c.ProbeData, "error":cErr}).Error("error instantiating client")    
+                            log.WithFields(log.Fields{"module":"executor", "serviceId":s.Id,"clientType":pc.ProbeType,
+                                "clientData":pc.ProbeData, "error":cErr}).Error("error instantiating client")    
                             // forward the default valued event 
-                            collectAndSendMetrics(reDao, nil, c.Metrics,s,out)
+                            collectAndSendMetrics(reDao, nil, pc.Metrics,s,out)
                             return
                         }
                         pResp, pErr := client.Execute()
                         if(pErr !=nil){
                             log.WithFields(log.Fields{"module":"executor", "serviceId":s.Id, 
-                                "clientType":c.ProbeType, "error":pErr}).Error("error in probing")
+                                "clientType":pc.ProbeType, "error":pErr}).Error("error in probing")
                             // forward the default valued event
                             pResp = nil
                         }
-                        collectAndSendMetrics(reDao, pResp, c.Metrics,s,out)
-                    }()
+                        collectAndSendMetrics(reDao, pResp, pc.Metrics,s,out)
+                    }(c, serv)
                 }
             }
         }
