@@ -26,6 +26,7 @@ All the data for this project stored on zookeeper resides at root-path /metricCo
 
 #### Examples
 running commands on zookeeper cli 
+
 * Get Ids of all services
 ```
 $ ls /metricCollect/services
