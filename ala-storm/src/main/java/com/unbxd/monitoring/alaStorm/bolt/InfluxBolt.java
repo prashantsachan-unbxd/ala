@@ -60,12 +60,10 @@ public class InfluxBolt extends BaseRichBolt {
         System.out.println("received : " + val);
         try {
             Map<String, Object> data = jsonMapper.readValue(val, Map.class);
-            String nanoTS  =(String) data.get("timestamp");
-            String milliTS = milliTimeStamp(nanoTS);
-            long t = toLong(milliTS);
+            long timeStampMilli  =(Long) data.get("timestamp");
             String metricName = (String) data.get(MSG_FIELD_METRIC_NAME);
             Point p = Point.measurement(metricName)
-                    .time(t, TimeUnit.MILLISECONDS)
+                    .time(timeStampMilli, TimeUnit.MILLISECONDS)
                     .addField(FIELD_SERVICE_ID, (String) ((Map) data.get
                             (MSG_FIELD_SERVICE)).get(MSG_FIELD_ID))
                     .addField(MSG_FIELD_METRIC_NAME, metricName)
@@ -79,28 +77,6 @@ public class InfluxBolt extends BaseRichBolt {
             logger.error(ExceptionUtils.getStackTrace(e));
         }
 
-    }
-
-    private long toLong(String milliTimeStamp) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        try {
-            Date d = df.parse(milliTimeStamp);
-            return d.getTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
-            logger.error(ExceptionUtils.getStackTrace(e));
-            return 0;
-        }
-
-    }
-    private String milliTimeStamp(String nanoTimeStamp){
-        int idx = nanoTimeStamp.indexOf('.')+3;
-        int plusIdx = nanoTimeStamp.indexOf('+');
-        int minusIdx = nanoTimeStamp.indexOf('-');
-        int max = plusIdx>minusIdx?plusIdx:minusIdx;
-        String timeStamp = nanoTimeStamp.substring(0,idx+1) +
-                nanoTimeStamp.substring(max);
-        return timeStamp;
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
