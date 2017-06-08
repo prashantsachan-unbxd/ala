@@ -6,7 +6,7 @@ following is the JSON representation syntax for an event
 ```
 {
 	"service"[object] : service for which the execution was done
-	"timestamp"[string] : Timestamp at which the execution started
+	"timestamp"[int64] : Timestamp at which the execution started (milliseconds since epoch)
 	"metricName"[string] : MetricName which is computed
 	"value"[float64] : value of the metric
 }
@@ -14,7 +14,7 @@ following is the JSON representation syntax for an event
 
 ### Comments
 * `service` has an object of same structure as given in [ServiceFormat|ServiceConf.md]
-* `timestamp` is in nanoseconds. JAVA dateFormat for its millisecond accuracy is `yyyy-MM-dd'T'HH:mm:ss.SSSXXX`
+* `timestamp` is a 64 bit int. 
 
 #### Example
 ```
@@ -26,7 +26,7 @@ following is the JSON representation syntax for an event
 		"class":["solr"],
 		"metadata":null
 	},
-	"timestamp":"2017-06-05T20:07:57.034877673+05:30",
+	"timestamp":1496903769213,
 	"metricName":"HTTPstatus200",
 	"value":1
 }
