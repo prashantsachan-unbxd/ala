@@ -107,7 +107,7 @@ func fetchMetrics(reDao RuleEngineDao, pcDao probe.ProbeConfigDao, services []to
 //collectAndSendMetrics computes set of metrics from a probeResponse & sends an event for each of them to channel
 func collectAndSendMetrics(reDao RuleEngineDao, pResp response.ProbeResponse, 
     metricConfs[]map[string]interface{}, service topo.Service, out chan result.Event){
-    timestamp:= time.Now()
+    timestamp:= time.Now().UTC().UnixNano() / 1000000
     metrics := getMetricValues(reDao, pResp, metricConfs)
     for k,v := range metrics{
         log.WithFields(log.Fields{"module":"executor", "serviceId":service.Id, "metric":k,"value":v}).Debug(

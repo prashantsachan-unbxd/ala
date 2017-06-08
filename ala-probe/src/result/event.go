@@ -1,7 +1,6 @@
 package result
 
 import (
-    "time"
     topo "topology"
     )
 
@@ -10,8 +9,8 @@ import (
 type Event struct{
     //Srvc : service for which the execution was done
     Srvc topo.Service `json:"service"`
-    //Timestamp at which the execution started
-    Timestamp time.Time `json:"timestamp"`
+    //UTC Timestamp at which the execution started (milliseconds since epoch)
+    Timestamp int64 `json:"timestamp"`
     //MetricName which is computed
     MetricName string `json:"metricName"`
     //MetricVal : value of the metric
