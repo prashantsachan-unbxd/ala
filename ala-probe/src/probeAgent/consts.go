@@ -20,11 +20,12 @@ const conf_re_pass = secRE + "pass"
 // Kafka section
 const secKafka = "kafka."
 const conf_kafka_brokers = secKafka+ "brokers_hostport"
+const conf_kafka_topic = secKafka+ "topic"
 
 var mustConfs = []string{conf_batch_interval, 
 	conf_service_path,
 	conf_re_host, conf_re_port,
-	conf_kafka_brokers}
+	conf_kafka_brokers, conf_kafka_topic}
 
 func missingConfs()[]string{
 	var missConfs []string  

@@ -6,16 +6,14 @@ import(
     log "github.com/Sirupsen/logrus"
     "time"
     )
-// var brokerlist = []string{"localhost:9092"}
 
-var TOPIC_NAME = "metricCollect"
 var producer sarama.AsyncProducer
 //KafkaForwarder is an kafka facing implementation of EventConsumer
 //it forwards each Event to Kafka
 type KafkaForwarder struct{
     //BrokerList : list of brokers to be used for connecting to kafka
     BrokerList []string
-
+    TopicName string
 }
 //Init creates an async Kafka producer
 func (this *KafkaForwarder) Init(){
@@ -36,7 +34,7 @@ func (this *KafkaForwarder) Consume(e Event){
         return
     }
     producer.Input() <- &sarama.ProducerMessage{
-            Topic: TOPIC_NAME,
+            Topic: this.TopicName,
             Key:   sarama.StringEncoder(e.Srvc.Id),
             Value: sarama.StringEncoder(msg),
         }

@@ -88,7 +88,7 @@ func main(){
     
     out:= exec.StartExec()
     dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}, 
-        & result.KafkaForwarder{viper.GetStringSlice(conf_kafka_brokers)}}}
+        & result.KafkaForwarder{viper.GetStringSlice(conf_kafka_brokers), viper.GetString(conf_kafka_topic)}}}
     // dispatcher := result.SimpleDispatcher{Consumers:[]result.EventConsumer{&result.EventLogger{}}}
     log.WithFields(log.Fields{"module": "main",}).Info("starting dispatcher")
     dispatcher.StartDispatch(out)
