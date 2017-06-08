@@ -8,7 +8,7 @@ import(
     )
 // var brokerlist = []string{"localhost:9092"}
 
-var TOPIC_NAME = "monitoring"
+var TOPIC_NAME = "metricCollect"
 var producer sarama.AsyncProducer
 //KafkaForwarder is an kafka facing implementation of EventConsumer
 //it forwards each Event to Kafka

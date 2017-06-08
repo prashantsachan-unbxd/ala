@@ -66,6 +66,7 @@ func unique(original[]string)[]string{
 
 //fetchMetrics computes all the metrics for all the services & send an event for each of them to the out channel
 func fetchMetrics(reDao RuleEngineDao, pcDao probe.ProbeConfigDao, services []topo.Service, out chan result.Event){
+    timestamp:= time.Now().UTC().UnixNano() / 1000000
     probeConfMap := fetchProbeConfigs(pcDao, services)
     log.WithFields(log.Fields{"module":"executor","stage":"probeConfig", 
         "value":probeConfMap}).Debug("fetched ProbeConfigs")
@@ -78,7 +79,7 @@ func fetchMetrics(reDao RuleEngineDao, pcDao probe.ProbeConfigDao, services []to
                     "serviceClass":servClass}).Debug("no ProbeConf for serviceClass")
             }else{
                 for _,c:= range confs {
-                    go func(pc probe.ProbeConfig, s topo.Service){
+                    go func(pc probe.ProbeConfig, s topo.Service, ts int64){
                         //for each probeConfig, create a client & send probeRequest 
                         log.WithFields(log.Fields{"module":"executor", "probeConf":pc}).Debug("intantiating Client")
                         client, cErr:= client.GetClient(pc.ProbeType, pc.ProbeData, s)
@@ -86,7 +87,7 @@ func fetchMetrics(reDao RuleEngineDao, pcDao probe.ProbeConfigDao, services []to
                             log.WithFields(log.Fields{"module":"executor", "serviceId":s.Id,"clientType":pc.ProbeType,
                                 "clientData":pc.ProbeData, "error":cErr}).Error("error instantiating client")    
                             // forward the default valued event 
-                            collectAndSendMetrics(reDao, nil, pc.Metrics,s,out)
+                            collectAndSendMetrics(reDao, nil, pc.Metrics,s, ts,out)
                             return
                         }
                         pResp, pErr := client.Execute()
@@ -96,8 +97,8 @@ func fetchMetrics(reDao RuleEngineDao, pcDao probe.ProbeConfigDao, services []to
                             // forward the default valued event
                             pResp = nil
                         }
-                        collectAndSendMetrics(reDao, pResp, pc.Metrics,s,out)
-                    }(c, serv)
+                        collectAndSendMetrics(reDao, pResp, pc.Metrics,s,ts,out)
+                    }(c, serv, timestamp)
                 }
             }
         }
@@ -106,8 +107,7 @@ func fetchMetrics(reDao RuleEngineDao, pcDao probe.ProbeConfigDao, services []to
 
 //collectAndSendMetrics computes set of metrics from a probeResponse & sends an event for each of them to channel
 func collectAndSendMetrics(reDao RuleEngineDao, pResp response.ProbeResponse, 
-    metricConfs[]map[string]interface{}, service topo.Service, out chan result.Event){
-    timestamp:= time.Now().UTC().UnixNano() / 1000000
+    metricConfs[]map[string]interface{}, service topo.Service, timestamp int64, out chan result.Event){
     metrics := getMetricValues(reDao, pResp, metricConfs)
     for k,v := range metrics{
         log.WithFields(log.Fields{"module":"executor", "serviceId":service.Id, "metric":k,"value":v}).Debug(
