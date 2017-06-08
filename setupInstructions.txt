@@ -1,0 +1,61 @@
+# Influxdb setup
+	# install influx
+		mkdir -p /var/lib/influxdb/{wal,data,meta}
+		#chown -R unbxd /var/lib/influxdb
+		INFLUX_ROOT=/home/unbxd/influxdb-1.2.4-1
+		INFLUX_BINARY=influxdb-1.2.4_linux_amd64.tar.gz
+		mkdir -p INFLUX_ROOT
+		wget https://dl.influxdata.com/influxdb/releases/$INFLUX_BINARY
+		tar xvfz INFLUX_BINARY -C INFLUX_ROOT --strip-components=1
+		echo 'export PATH=$PATH:'$INFLUX_ROOT/usr/bin >> ~/.bashrc
+		nohup influxd > $INFLUX_ROOT/../influxdb.log 2>&1 &
+	# create db, users
+		influx
+			> create user admin with password '20un8xd10' with all privileges
+			> create user unbxd with password 'unbxd'
+			> create database metricCollect
+			> grant all on metricCollect to unbxd
+		open $INFLUX_ROOT/etc/influxdb/influxdb.conf and set
+			'auth-enabled = true' in [http] section
+
+# Kafka Setup 
+	create topic 'metricCollect'
+#######################################
+# setup GO environment
+export GOROOT = ~/go-1.7.6
+GO_BINARY = go1.7.6.linux-amd64.tar.gz
+ALA_ROOT = ~/ala
+	#install go 1.7.6
+wget https://storage.googleapis.com/golang/$GO_BINARY
+mkdir GOROOT
+tar -xzf GO_BINARY -C GOROOT --strip-components=1
+	# make  entries in bashrc file 
+echo 'export GOROOT='$GOROOT >> ~/.bashrc
+echo 'export GOPATH=$GOROOT/../goCode' >> ~/.bashrc
+echo 'export PATH=$PATH:$GOROOT/bin' >> ~/.bashrc 
+echo 'export GOBIN=$GOROOT/bin' >> ~/.bashrc 
+source ~/.bashrc
+	# install gb
+go get github.com/constabulary/gb/...
+##################################################
+# clone repo
+git clone https://github.com/unbxd/ala.git
+# submit ala-storm jar to storm cluster
+	# install java, maven
+sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
+sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
+sudo yum install -y apache-maven
+mvn –version
+	# compile and submit 
+cd $ALA_ROOT/ala-storm
+	# install storm
+mvn clean compile package
+storm jar target/ala-storm-1.0-SNAPSHOT.jar   com.unbxd.monitoring.alaStorm.TopologySubmit
+# build and run ala-probe
+cd $ALA_ROOT/ala-probe
+gb vendor restore
+# change the config to point to correct RuleEngine, Zookeeper & Kafka
+gb build
+nohup bin/probeAgent >> ../ala-probe.log 2>&1 &
+
+
